@@ -3,7 +3,7 @@
 #include <fstream>
 
 class Book{
-    protected :
+    protected:
         std::string bookName, bookId;
         int requiredAge;
 
@@ -13,30 +13,30 @@ class Book{
         virtual void borrowBook() {}
         virtual void returnBook() {}
 
-        void setBookName (std::string bookName)
+        void setBookName(std::string bookName)
         {
             this->bookName=bookName;
         }
 
-        void setBookId (std::string bookId)
+        void setBookId(std::string bookId)
         {
             this->bookId=bookId;
         }
 
-        void setRequiredAge (int requiredAge)
+        void setRequiredAge(int requiredAge)
         {
             this->requiredAge=requiredAge;
         }
 
-        std::string getBookName () const {
+        std::string getBookName() const {
             return bookName;
         }
 
-        std::string getBookId () const {
+        std::string getBookId() const {
             return bookId;
         }
 
-        int getrequiredAge () const {
+        int getrequiredAge() const {
             return requiredAge;
         }
 };

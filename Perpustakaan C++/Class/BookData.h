@@ -16,22 +16,22 @@ private:
         tm *date = localtime(&rawtime);
 
         if (isBorrow) {
-            file << "~~Borrow~~"                    << std::endl
-                 << "Date :" << asctime(date)       << std::endl
-                 << "Book :" << this->getBookName() << std::endl
-                 << "Name :" << name                << std::endl
-                 << std::endl;
+            file << "~~Borrow~~"                   << std::endl
+                << "Date :" << asctime(date)       << std::endl
+                << "Book :" << this->bookName      << std::endl
+                << "Name :" << name                << std::endl
+                << std::endl;
         } else {
             file << "~~Return~~"                    << std::endl
-                 << "Date :" << asctime(date)       << std::endl
-                 << "Book :" << this->getBookName() << std::endl
-                 << "Name :" << name                << std::endl
-                 << std::endl;
+                << "Date :" << asctime(date)        << std::endl
+                << "Book :" << this->bookName       << std::endl
+                << "Name :" << name                 << std::endl
+                << std::endl;
         }
     }
 public:
     BookData(std::string bookName, std::string bookId, int requiredAge, 
-             int Amount, int Available) :
+            int Amount, int Available) :
         Book(bookName, bookId, requiredAge), Amount(Amount), 
         Available(Available) {}
 

@@ -1,8 +1,13 @@
 #pragma once
 #include <string>
+#include <iostream>
+#include <cstdlib>
 
 class Employee{
     public:
+        Employee() : nameEmployee(""), idEmployee(""), password(""), day("") {}
+        Employee(std::string nameEmployee, std::string idEmployee, std::string password, std::string day) : nameEmployee(nameEmployee), idEmployee(idEmployee), password(password), day(day) {}
+
         void setNameEmployee (std::string nameEmployee){
             this->nameEmployee=nameEmployee;
         }
@@ -11,8 +16,28 @@ class Employee{
             this->idEmployee=idEmployee;
         }
 
-        void setPassword (std::string password){
-            this->password=password;
+        void changePassword() {
+            std::string oldPassword;
+            do {
+                std::cout << "Input Current Password" << std::endl;
+                std::cin >> oldPassword;
+                if(oldPassword != this->password) {
+                    std::cout << "Wrong Password\n";
+                }
+            } while (oldPassword != this->password);
+
+            std::string newPassword, passwordConfirm;
+
+            do {
+                std::cout << "Input New Password" << std::endl;
+                std::cin >> newPassword;
+                system("cls");
+                std::cout << "Confirm New Password" << std::endl;
+                std::cin >> passwordConfirm;
+                if (newPassword != passwordConfirm) {
+                    std::cout << "Wrong Password\n";
+                }
+            } while (newPassword != passwordConfirm);
         }
 
         void setDay (std::string day) {
