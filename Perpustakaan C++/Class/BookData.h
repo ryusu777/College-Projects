@@ -1,10 +1,33 @@
+#pragma once
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <ctime>
 #include "Book.h"
 
-class BookData : Book {
+class BookData : protected Book {
 private:
     int Amount, Available;
     
-    void write(bool isBorrow) {
+    void write(bool isBorrow, std::ofstream& file, const std::string& name) {
+        time_t rawtime;
+        time(&rawtime);
+
+        tm *date = localtime(&rawtime);
+
+        if (isBorrow) {
+            file << "~~Borrow~~"                    << std::endl
+                 << "Date :" << asctime(date)       << std::endl
+                 << "Book :" << this->getBookName() << std::endl
+                 << "Name :" << name                << std::endl
+                 << std::endl;
+        } else {
+            file << "~~Return~~"                    << std::endl
+                 << "Date :" << asctime(date)       << std::endl
+                 << "Book :" << this->getBookName() << std::endl
+                 << "Name :" << name                << std::endl
+                 << std::endl;
+        }
     }
 public:
     BookData(std::string bookName, std::string bookId, int requiredAge, 
@@ -12,13 +35,18 @@ public:
         Book(bookName, bookId, requiredAge), Amount(Amount), 
         Available(Available) {}
 
-    void borrowBook() {
-        Available--;
+    void borrowBook(std::ofstream& file, const std::string& memberName) {
+        if (this->Available > 0) {
+            this->Available--;
+            write(true, file, memberName);
+        } 
     }
 
-    void returnBook() {
-        if (Available < Amount)
-            Available++;
+    void returnBook(std::ofstream& file, const std::string& memberName) {
+        if (this->Available < Amount) {
+            this->Available++;
+            write(false, file, memberName);
+        }
     }
     
     void add(int amount) {

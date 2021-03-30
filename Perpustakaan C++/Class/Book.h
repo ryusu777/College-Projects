@@ -1,13 +1,17 @@
+#pragma once
 #include <string>
+#include <fstream>
 
 class Book{
-    public :
+    protected :
+        std::string bookName, bookId;
+        int requiredAge;
+
         Book(std::string bookName, std::string bookId, int requiredAge) :
             bookName(bookName), bookId(bookId), requiredAge(requiredAge) {}
 
-        virtual void borrowBook ();
-
-        virtual void returnBook();
+        virtual void borrowBook() {}
+        virtual void returnBook() {}
 
         void setBookName (std::string bookName)
         {
@@ -35,8 +39,4 @@ class Book{
         int getrequiredAge () const {
             return requiredAge;
         }
-
-    protected:
-        std::string bookName, bookId;
-        int requiredAge;
 };
