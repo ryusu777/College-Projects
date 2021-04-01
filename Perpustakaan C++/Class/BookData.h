@@ -5,7 +5,7 @@
 #include <ctime>
 #include "Book.h"
 
-class BookData : protected Book {
+class BookData : public Book {
 private:
     int Amount, Available;
     

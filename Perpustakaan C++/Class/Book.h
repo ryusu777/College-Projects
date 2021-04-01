@@ -7,6 +7,8 @@ class Book{
         std::string bookName, bookId;
         int requiredAge;
 
+    public:
+
         Book(std::string bookName, std::string bookId, int requiredAge) :
             bookName(bookName), bookId(bookId), requiredAge(requiredAge) {}
 
