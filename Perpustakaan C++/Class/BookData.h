@@ -55,8 +55,12 @@ public:
     }
 
     void remove(int amount) {
-        Amount -= amount;
-        Available -= amount;
+        if (Available >= amount) {
+            Amount -= amount;
+            Available -= amount;
+        } else {
+            std::cout << "Cannot remove non-available books!\n";
+        }
     }
 
     int getAmount() {
