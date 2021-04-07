@@ -117,7 +117,6 @@ void stockManagement() {
 }
 
 int main() {
-    Employee currentLibrarian;
     login();
     showMenu();
     return 0;
