@@ -31,7 +31,7 @@ void gatherData() {
         getline(employeeFile, nameEmployee);
         employeeFile.get();
         employeeFile >> idEmployee >> password >> day;
-        listEmployee[i] = Employee(nameEmployee, idEmployee, password, day);
+        listEmployee[i] = Employee(nameEmployee, idEmployee, password);
     }
     employeeFile.close();
 }
