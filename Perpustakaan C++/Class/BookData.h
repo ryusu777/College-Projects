@@ -30,6 +30,9 @@ private:
         }
     }
 public:
+    BookData() : Book("", "", -1), Amount(-1), 
+        Available(-1) {}
+
     BookData(std::string bookName, std::string bookId, int requiredAge, 
             int Amount, int Available) :
         Book(bookName, bookId, requiredAge), Amount(Amount), 
@@ -63,11 +66,11 @@ public:
         }
     }
 
-    int getAmount() {
+    int getAmount() const {
         return Amount;
     }
 
-    int getAvailable() {
+    int getAvailable() const {
         return Available;
     }
 };
