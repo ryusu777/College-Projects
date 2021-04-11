@@ -1,1 +1,1 @@
-Project perpustakaan ini belum selesai dan masih dikembangkan.
+Simple Library program with member, employee, book data functionality

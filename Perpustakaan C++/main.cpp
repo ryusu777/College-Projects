@@ -20,10 +20,10 @@ int lastKnownId;
 
 void writeBookData(ostream& stream, const BookData& data) {
     stream << data.getBookName()    << endl
-            << data.getBookId()      << endl
-            << data.getrequiredAge() << endl
-            << data.getAmount()      << endl
-            << data.getAvailable()   << endl;
+           << data.getBookId()      << endl
+           << data.getrequiredAge() << endl
+           << data.getAmount()      << endl
+           << data.getAvailable()   << endl;
 }
 
 BookData readBookData(istream& stream) {
@@ -60,6 +60,30 @@ Member readMember(istream& stream) {
     return Member(bookName, bookId, stoi(requiredAge), Name,  Address, Telephone, Id, stoi(age));
 }
 
+void writeEmployee(ostream& stream, const Employee& data){
+    stream << data.getNameEmployee()    << endl
+           << data.getIdEmployee()      << endl
+           << data.getPassword()        << endl;
+}
+
+Employee readEmployee(istream& stream) {
+    string nameEmployee, idEmployee, password;
+    getline(stream, nameEmployee);
+    getline(stream, idEmployee);
+    getline(stream, password);
+    return Employee(nameEmployee, idEmployee, password);
+}
+
+BookData readBookData(istream& stream) {
+    string bookName, bookId, requiredAge, amount, available;
+    getline(stream, bookName);
+    getline(stream, bookId);
+    getline(stream, requiredAge);
+    getline(stream, amount);
+    getline(stream, available);
+    return BookData(bookName, bookId, stoi(requiredAge), stoi(amount), stoi(available));
+}
+
 void gatherData() {
     //BookData reading
     ifstream bookFileIn;
@@ -70,13 +94,11 @@ void gatherData() {
         listBook[i] = readBookData(bookFileIn);
     }
     bookFileIn.close();
-
     //MemberData reading
     ifstream memberFileIn;
     memberFileIn.open("Files/MemberData.txt");
     memberFileIn >> memberCount; memberFileIn.get();
     listMember = new Member[memberCount];
-
 }
 
 Employee* search(const string& id) {
