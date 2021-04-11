@@ -26,6 +26,20 @@ void writeBookData(ostream& stream, const BookData& data) {
            << data.getAvailable()   << endl;
 }
 
+void writeEmployee(ostream& stream, const Employee& data){
+    stream << data.getNameEmployee()    << endl
+           << data.getIdEmployee()      << endl
+           << data.getPassword()        << endl;
+}
+
+Employee readEmployee(istream& stream) {
+    string nameEmployee, idEmployee, password;
+    getline(stream, nameEmployee);
+    getline(stream, idEmployee);
+    getline(stream, password);
+    return Employee(nameEmployee, idEmployee, password);
+}
+
 BookData readBookData(istream& stream) {
     string bookName, bookId, requiredAge, amount, available;
     getline(stream, bookName);
