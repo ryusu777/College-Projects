@@ -1,29 +1,82 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+#include <string>
+#include <sstream>
 #include "Class/BookData.h"
 #include "Class/Employee.h"
+#include "Class/Member.h"
+
 using namespace std;
 
 Employee *listEmployee;
+Employee *currentLibrarian;
+BookData *listBook;
+Member *listMember;
 int employeeCount;
+int bookCount;
+int memberCount;
+int lastKnownId;
+
+void writeBookData(ostream& stream, const BookData& data) {
+    stream << data.getBookName()    << endl
+            << data.getBookId()      << endl
+            << data.getrequiredAge() << endl
+            << data.getAmount()      << endl
+            << data.getAvailable()   << endl;
+}
+
+BookData readBookData(istream& stream) {
+    string bookName, bookId, requiredAge, amount, available;
+    getline(stream, bookName);
+    getline(stream, bookId);
+    getline(stream, requiredAge);
+    getline(stream, amount);
+    getline(stream, available);
+    return BookData(bookName, bookId, stoi(requiredAge), stoi(amount), stoi(available));
+}
+
+void writeMember(ostream& stream, const Member& data) {
+    stream << data.getBookName()    << endl
+           << data.getBookId()      << endl
+           << data.getrequiredAge() << endl
+           << data.getName()        << endl
+           << data.getAddress()     << endl
+           << data.getTelephone()   << endl
+           << data.getId()          << endl
+           << data.getAge()         << endl;
+}
+
+Member readMember(istream& stream) {
+    string bookName, bookId, requiredAge, Name, Address, Telephone, Id, age;
+    getline(stream, bookName);
+    getline(stream, bookId);
+    getline(stream, requiredAge);
+    getline(stream, Name);
+    getline(stream, Address);
+    getline(stream, Telephone);
+    getline(stream, Id);
+    getline(stream, age);
+    return Member(bookName, bookId, stoi(requiredAge), Name,  Address, Telephone, Id, stoi(age));
+}
 
 void gatherData() {
-    ifstream employeeFile;
-    //TODO: Open employeeFile
-
-    employeeFile >> employeeCount;
-
-    listEmployee = new Employee[employeeCount];
-
-    for (int i = 0; i < employeeCount; i++) {
-        string nameEmployee, idEmployee, password, day;
-        getline(employeeFile, nameEmployee);
-        employeeFile.get();
-        employeeFile >> idEmployee >> password >> day;
-        listEmployee[i] = Employee(nameEmployee, idEmployee, password, day);
+    //BookData reading
+    ifstream bookFileIn;
+    bookFileIn.open("Files/BookData.txt");
+    bookFileIn >> bookCount; bookFileIn.get();
+    listBook = new BookData[bookCount];
+    for (int i = 0; i < bookCount; i++) {
+        listBook[i] = readBookData(bookFileIn);
     }
-    employeeFile.close();
+    bookFileIn.close();
+
+    //MemberData reading
+    ifstream memberFileIn;
+    memberFileIn.open("Files/MemberData.txt");
+    memberFileIn >> memberCount; memberFileIn.get();
+    listMember = new Member[memberCount];
+
 }
 
 Employee* search(const string& id) {
@@ -35,7 +88,7 @@ Employee* search(const string& id) {
     return nullptr;
 }
 
-void login(Employee& currentLibrarian) {
+void login() {
     string id;
     Employee *ptr = nullptr;
 
@@ -48,7 +101,7 @@ void login(Employee& currentLibrarian) {
         }
     } while (ptr == nullptr);
 
-    currentLibrarian = *ptr;
+    currentLibrarian = ptr;
 }
 
 void showMenu() {
@@ -65,9 +118,49 @@ void changePassword(Employee& currentLibrarian) {
     currentLibrarian.changePassword();
 }
 
+string createId() {
+    lastKnownId++;
+    stringstream stream;
+    stream << "MU" << setfill('0') << setw(4) << to_string(lastKnownId);
+    return stream.str();
+}
+
+BookData* searchByName(const string& bookName) {
+    for (int i = 0; i < bookCount; i++) {
+        if (listBook[i].getBookName() == bookName) {
+            return &listBook[i];
+        }
+    }
+    return nullptr;
+}
+
+BookData* searchById(const string& bookId) {
+    for (int i = 0; i < bookCount; i++) {
+        if (listBook[i].getBookId() == bookId) {
+            return &listBook[i];
+        }
+    }
+    return nullptr;
+}
+
+void stockManagement() {
+    string password;
+    cout << "Welcome " << currentLibrarian->getNameEmployee() << endl;
+    cout << "Please insert your password: ";
+    
+    //TODO: add login method to Employee
+    //do {
+        //cin >> password;
+        //if (!currentLibrarian.login(password) && password[0] != '0') {
+            //cout << "Wrong Password, try again (0 to exit)\n>> ";
+        //}
+    //} while (!currentLibrarian.login(password) && password[0] != '0');
+
+    currentLibrarian->changePassword();
+}
+
 int main() {
-    Employee currentLibrarian;
-    login(currentLibrarian);
+    login();
     showMenu();
     return 0;
 }

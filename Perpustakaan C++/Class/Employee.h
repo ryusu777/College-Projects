@@ -5,8 +5,8 @@
 
 class Employee{
     public:
-        Employee() : nameEmployee(""), idEmployee(""), password(""), day("") {}
-        Employee(std::string nameEmployee, std::string idEmployee, std::string password, std::string day) : nameEmployee(nameEmployee), idEmployee(idEmployee), password(password), day(day) {}
+        Employee() : nameEmployee(""), idEmployee(""), password("") {}
+        Employee(std::string nameEmployee, std::string idEmployee, std::string password) : nameEmployee(nameEmployee), idEmployee(idEmployee), password(password) {}
 
         void setNameEmployee (std::string nameEmployee){
             this->nameEmployee=nameEmployee;
@@ -40,10 +40,6 @@ class Employee{
             } while (newPassword != passwordConfirm);
         }
 
-        void setDay (std::string day) {
-            this-> day=day;
-        }
-
         std::string getNameEmployee() const {
             return nameEmployee;
         }
@@ -56,9 +52,6 @@ class Employee{
             return password;
         }
         
-        std::string getDay() const {
-            return day;
-        }
     private:
-        std::string nameEmployee, idEmployee, password, day;
+        std::string nameEmployee, idEmployee, password;
 };

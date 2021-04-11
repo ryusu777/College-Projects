@@ -30,6 +30,9 @@ private:
         }
     }
 public:
+    BookData() : Book("", "", -1), Amount(-1), 
+        Available(-1) {}
+
     BookData(std::string bookName, std::string bookId, int requiredAge, 
             int Amount, int Available) :
         Book(bookName, bookId, requiredAge), Amount(Amount), 
@@ -55,15 +58,19 @@ public:
     }
 
     void remove(int amount) {
-        Amount -= amount;
-        Available -= amount;
+        if (Available >= amount) {
+            Amount -= amount;
+            Available -= amount;
+        } else {
+            std::cout << "Cannot remove non-available books!\n";
+        }
     }
 
-    int getAmount() {
+    int getAmount() const {
         return Amount;
     }
 
-    int getAvailable() {
+    int getAvailable() const {
         return Available;
     }
 };
