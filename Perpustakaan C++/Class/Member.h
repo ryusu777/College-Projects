@@ -1,6 +1,5 @@
 #pragma once
 #include "Book.h"
-#include "BookData.h"
 #include <string>
 class Member : public Book{
     private:
@@ -8,16 +7,31 @@ class Member : public Book{
     int age;
 
     public:
-    void setMember(std::string Name, std::string Address, std::string Telephone, std::string Id, int age, 
-                   std::string bookName, std::string bookId, int requiredAge){
-        this->Name = Name;
-        this->Address = Address;
-        this->Telephone = Telephone;
-        this->Id = Id;
-        this->age = age;
-        this->bookName = bookName;
-        this->bookId = bookId;
-        this->requiredAge = requiredAge;
+    Member(std::string bookName, std::string bookId, int requiredAge, 
+            std::string Name, std::string Address, std::string Telephone,
+            std::string Id, int age):Book(bookName, bookId, requiredAge), Name(Name), Address(Address),
+        Telephone(Telephone), Id(Id), age(age) {}
+
+    Member() : Book("", "", -1), Name(""), Address(""), Telephone(""), Id(""), age(-1) {}
+
+    std::string getName() const{
+        return Name;
+    }
+
+    std::string getAddress() const{
+        return Address;
+    }
+
+    std::string getTelephone() const{
+        return Telephone;
+    }
+
+    std::string getId() const{
+        return Id;
+    }
+
+    int getAge() const{
+        return age;
     }
 
     void borrowBook(std::string bookName, std::string bookId){
