@@ -74,16 +74,6 @@ Employee readEmployee(istream& stream) {
     return Employee(nameEmployee, idEmployee, password);
 }
 
-BookData readBookData(istream& stream) {
-    string bookName, bookId, requiredAge, amount, available;
-    getline(stream, bookName);
-    getline(stream, bookId);
-    getline(stream, requiredAge);
-    getline(stream, amount);
-    getline(stream, available);
-    return BookData(bookName, bookId, stoi(requiredAge), stoi(amount), stoi(available));
-}
-
 void gatherData() {
     //BookData reading
     ifstream bookFileIn;
@@ -99,6 +89,19 @@ void gatherData() {
     memberFileIn.open("Files/MemberData.txt");
     memberFileIn >> memberCount; memberFileIn.get();
     listMember = new Member[memberCount];
+    for (int i = 0; i < bookCount; i++) {
+        listMember[i] = readMember(memberFileIn);
+    }
+    memberFileIn.close();
+    //EmployeeData reading
+    ifstream employeeFileIn;
+    employeeFileIn.open("FIles/EmployeeData.txt");
+    employeeFileIn >> employeeCount; employeeFileIn.get();
+    listEmployee = new Employee[employeeCount];
+    for (int i = 0; i < employeeCount; i++) {
+        listEmployee[i] = readEmployee(employeeFileIn);
+    }
+    employeeFileIn.close();
 }
 
 Employee* search(const string& id) {
