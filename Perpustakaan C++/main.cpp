@@ -77,7 +77,7 @@ Employee readEmployee(istream& stream) {
 void gatherData() {
     //BookData reading
     ifstream bookFileIn;
-    bookFileIn.open("Files/BookData.txt");
+    bookFileIn.open("Files/BookData.txt", ios::in);
     bookFileIn >> bookCount; bookFileIn.get();
     listBook = new BookData[bookCount];
     for (int i = 0; i < bookCount; i++) {
@@ -86,7 +86,7 @@ void gatherData() {
     bookFileIn.close();
     //MemberData reading
     ifstream memberFileIn;
-    memberFileIn.open("Files/MemberData.txt");
+    memberFileIn.open("Files/MemberData.txt", ios::in);
     memberFileIn >> memberCount; memberFileIn.get();
     listMember = new Member[memberCount];
     for (int i = 0; i < bookCount; i++) {
@@ -95,13 +95,39 @@ void gatherData() {
     memberFileIn.close();
     //EmployeeData reading
     ifstream employeeFileIn;
-    employeeFileIn.open("FIles/EmployeeData.txt");
+    employeeFileIn.open("FIles/EmployeeData.txt", ios::in);
     employeeFileIn >> employeeCount; employeeFileIn.get();
     listEmployee = new Employee[employeeCount];
     for (int i = 0; i < employeeCount; i++) {
         listEmployee[i] = readEmployee(employeeFileIn);
     }
     employeeFileIn.close();
+}
+
+void writeData() {
+    ofstream bookFileOut;
+    bookFileOut.open("Files/BookData.txt", ios::out);
+    bookFileOut << bookCount << endl;
+    for (int i = 0; i < bookCount; i++) {
+        writeBookData(bookFileOut, listBook[i]);
+    }
+    bookFileOut.close();
+
+    ofstream memberFileOut;
+    memberFileOut.open("Files/MemberData.txt", ios::out);
+    memberFileOut << memberCount << endl;
+    for (int i= 0; i < memberCount; i++) {
+        writeMember(memberFileOut, listMember[i]);
+    }
+    memberFileOut.close();
+
+    ofstream employeeFileOut;
+    employeeFileOut.open("Files/EmployeeData.txt", ios::out);
+    employeeFileOut << employeeCount;
+    for (int i = 0; i < employeeCount; i++) {
+        writeEmployee(employeeFileOut, listEmployee[i]);
+    }
+    employeeFileOut.close();
 }
 
 Employee* search(const string& id) {
