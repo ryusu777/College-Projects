@@ -9,7 +9,9 @@ class Member : public Book{
     public:
     Member(std::string bookName, std::string bookId, int requiredAge, 
             std::string Name, std::string Address, std::string Telephone,
-            std::string Id, int age):Book(bookName, bookId, requiredAge), Name(Name), Address(Address),
+            std::string Id, int age) :
+        Book(bookName, bookId, requiredAge), 
+        Name(Name), Address(Address),
         Telephone(Telephone), Id(Id), age(age) {}
 
     Member() : Book("", "", -1), Name(""), Address(""), Telephone(""), Id(""), age(-1) {}
