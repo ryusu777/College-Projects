@@ -1,4 +1,5 @@
 #include "Class/BookData.h"
+using namespace std;
 
 void BookData::write(bool isBorrow, std::ostream& stream, const std::string& name) {
     time_t rawtime;
@@ -33,7 +34,9 @@ void BookData::borrowBook(std::ostream& file, const std::string& memberName) {
     if (this->Available > 0) {
         this->Available--;
         write(true, file, memberName);
-    } 
+    } else {
+        throw invalid_argument("Book is not available");
+    }
 }
 
 void BookData::returnBook(std::ostream& file, const std::string& memberName) {
@@ -44,17 +47,22 @@ void BookData::returnBook(std::ostream& file, const std::string& memberName) {
 }
 
 void BookData::add(int amount) {
+    if (amount < 0) {
+        throw std::invalid_argument("Invalid input");
+    }
     Amount += amount;
     Available += amount;
 }
 
 void BookData::remove(int amount) {
+    if (amount < 0) {
+        throw std::invalid_argument("Invalid input");
+    }
     if (Available >= amount) {
         Amount -= amount;
         Available -= amount;
     } else {
-        //TODO: uses throw argument exeption
-        std::cout << "Cannot remove non-available books!\n";
+        throw invalid_argument("Book is not available");
     }
 }
 
