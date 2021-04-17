@@ -27,6 +27,15 @@ void writeBookData(ostream& stream, const BookData& data) {
            << data.getAvailable()   << endl;
 }
 
+string toLower(string str) {
+    for (unsigned i = 0; i < str.size(); i++) {
+        if (str[i] >= 'A' && str[i] <= 'Z') {
+            str[i] += 'a' - 'A';
+        }
+    }
+    return str;
+}
+
 BookData readBookData(istream& stream) {
     string bookName, bookId, requiredAge, amount, available;
     getline(stream, bookName);
@@ -134,7 +143,7 @@ void writeData() {
 
     ofstream employeeFileOut;
     employeeFileOut.open("Files/EmployeeData.txt", ios::out);
-    employeeFileOut << employeeCount;
+    employeeFileOut << employeeCount << endl;
     for (int i = 0; i < employeeCount; i++) {
         writeEmployee(employeeFileOut, listEmployee[i]);
     }
@@ -174,6 +183,28 @@ void showMenu() {
     cout << "3. Show history\n";
     cout << "4. Stock management\n";
     cout << "5. Change password\n";
+    cout << "6. Exit\n";
+}
+
+int userChooseMenu() {
+    showMenu();
+    string inputStr;
+    int input = -1, numOfMenu = 6;
+
+    //TODO: dynamic according to number of menu
+    while (input < 1 || input > numOfMenu) {
+        cout << ">> ";
+        getline(cin, inputStr);
+        try {
+            input = stoi(inputStr);
+            if (input < 1 || input > numOfMenu) {
+                cout << "You should enter an integer between 1 and " << numOfMenu << ".\n";
+            }
+        } catch (const invalid_argument& err) {
+            cout << "You should enter an integer.\n";
+        }
+    }
+    return input;
 }
 
 void changePassword(Employee& currentLibrarian) {
@@ -215,14 +246,13 @@ void stockManagement() {
     cout << "Welcome " << currentLibrarian->getNameEmployee() << ".\n";
     cout << "Input a book's ID or Name:\n";
 
-    do {
         cout << ">> ";
         getline(cin, inputBook);
         selectedBook = searchBook(inputBook);
         if (selectedBook == nullptr) {
             cout << "Book not found\n";
+            return;
         }
-    } while (selectedBook == nullptr);
 
     cout << selectedBook->getBookName() << " found.\n";
     cout << setw(15) << left << "Amount"    << ":" << selectedBook->getAmount()    << endl
@@ -307,5 +337,38 @@ void stockManagement() {
 int main() {
     gatherData();
     login();
+    int menuChosen = userChooseMenu();
+
+    switch(menuChosen) {
+        case 1:
+            cout << "Chosen 1\n";
+            break;
+        case 2:
+            cout << "Chosen 2\n";
+            break;
+        case 3:
+            cout << "Chosen 3\n";
+            break;
+        case 4:
+            {
+                string repeatStr;
+                do {
+                    stockManagement();
+                    cout << "Finished doing stock management(y/n)?\n>> ";
+                    getline(cin, repeatStr);
+                    repeatStr = toLower(repeatStr);
+                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
+            }
+            break;
+        case 5:
+            cout << "Chosen 5\n";
+            break;
+        case 6:
+            cout << "Chosen 6\n";
+            break;
+        default:
+            cout << "Default\n";
+            break;
+    }
     return 0;
 }
