@@ -9,34 +9,24 @@ class Member : public Book{
     public:
     Member(std::string bookName, std::string bookId, int requiredAge, 
             std::string Name, std::string Address, std::string Telephone,
-            std::string Id, int age):Book(bookName, bookId, requiredAge), Name(Name), Address(Address),
-        Telephone(Telephone), Id(Id), age(age) {}
+            std::string Id, int age);
 
-    Member() : Book("", "", -1), Name(""), Address(""), Telephone(""), Id(""), age(-1) {}
+    Member();
 
-    std::string getName() const{
-        return Name;
-    }
+    std::string getName() const;
 
-    std::string getAddress() const{
-        return Address;
-    }
+    std::string getAddress() const;
 
-    std::string getTelephone() const{
-        return Telephone;
-    }
+    std::string getTelephone() const;
 
-    std::string getId() const{
-        return Id;
-    }
+    std::string getId() const;
 
-    int getAge() const{
-        return age;
-    }
+    int getAge() const;
 
-    void borrowBook(std::string bookName, std::string bookId){
+    void borrowBook(std::string bookName, std::string bookId, int requiredAge){
         this->bookName=bookName;
         this->bookId=bookId;
+        this->requiredAge=requiredAge;
     }
 
     void returnBook(){
