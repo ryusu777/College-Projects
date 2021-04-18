@@ -1,36 +1,36 @@
 #include "Class/BookData.h"
 using namespace std;
 
-void BookData::write(bool isBorrow, std::ostream& stream, const std::string& name) {
+void BookData::write(bool isBorrow, ostream& stream, const string& name) {
     time_t rawtime;
     time(&rawtime);
 
     tm *date = localtime(&rawtime);
 
     if (isBorrow) {
-        stream << "~~Borrow~~"                   << std::endl
-            << "Date :" << asctime(date)       << std::endl
-            << "Book :" << this->bookName      << std::endl
-            << "Name :" << name                << std::endl
-            << std::endl;
+        stream << "~~Borrow~~"                   << endl
+            << "Date :" << asctime(date)       << endl
+            << "Book :" << this->bookName      << endl
+            << "Name :" << name                << endl
+            << endl;
     } else {
-        stream << "~~Return~~"                    << std::endl
-            << "Date :" << asctime(date)        << std::endl
-            << "Book :" << this->bookName       << std::endl
-            << "Name :" << name                 << std::endl
-            << std::endl;
+        stream << "~~Return~~"                    << endl
+            << "Date :" << asctime(date)        << endl
+            << "Book :" << this->bookName       << endl
+            << "Name :" << name                 << endl
+            << endl;
     }
 }
 
 BookData::BookData() : Book("", "", -1), Amount(-1), 
     Available(-1) {}
 
-BookData::BookData(std::string bookName, std::string bookId, int requiredAge, 
+BookData::BookData(string bookName, string bookId, int requiredAge, 
         int Amount, int Available) :
     Book(bookName, bookId, requiredAge), Amount(Amount), 
     Available(Available) {}
 
-void BookData::borrowBook(std::ostream& file, const std::string& memberName) {
+void BookData::borrowBook(ostream& file, const string& memberName) {
     if (this->Available > 0) {
         this->Available--;
         write(true, file, memberName);
@@ -39,7 +39,7 @@ void BookData::borrowBook(std::ostream& file, const std::string& memberName) {
     }
 }
 
-void BookData::returnBook(std::ostream& file, const std::string& memberName) {
+void BookData::returnBook(ostream& file, const string& memberName) {
     if (this->Available < Amount) {
         this->Available++;
         write(false, file, memberName);
@@ -48,7 +48,7 @@ void BookData::returnBook(std::ostream& file, const std::string& memberName) {
 
 void BookData::add(int amount) {
     if (amount < 0) {
-        throw std::invalid_argument("Invalid input");
+        throw invalid_argument("Invalid input");
     }
     Amount += amount;
     Available += amount;
@@ -56,7 +56,7 @@ void BookData::add(int amount) {
 
 void BookData::remove(int amount) {
     if (amount < 0) {
-        throw std::invalid_argument("Invalid input");
+        throw invalid_argument("Invalid input");
     }
     if (Available >= amount) {
         Amount -= amount;
