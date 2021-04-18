@@ -1,4 +1,5 @@
 #include "Class/BookData.h"
+
 using namespace std;
 
 void BookData::write(bool isBorrow, ostream& stream, const string& name) {
@@ -8,27 +9,28 @@ void BookData::write(bool isBorrow, ostream& stream, const string& name) {
     tm *date = localtime(&rawtime);
 
     if (isBorrow) {
-        stream << "~~Borrow~~"                   << endl
-            << "Date :" << asctime(date)       << endl
-            << "Book :" << this->bookName      << endl
-            << "Name :" << name                << endl
-            << endl;
+        stream << "~~Borrow~~"                   << std::endl
+            << "Date :" << asctime(date)       << std::endl
+            << "Book :" << this->bookName      << std::endl
+            << "Name :" << name                << std::endl
+            << std::endl;
     } else {
-        stream << "~~Return~~"                    << endl
-            << "Date :" << asctime(date)        << endl
-            << "Book :" << this->bookName       << endl
-            << "Name :" << name                 << endl
-            << endl;
+        stream << "~~Return~~"                    << std::endl
+            << "Date :" << asctime(date)        << std::endl
+            << "Book :" << this->bookName       << std::endl
+            << "Name :" << name                 << std::endl
+            << std::endl;
     }
 }
 
 BookData::BookData() : Book("", "", -1), Amount(-1), 
     Available(-1) {}
 
-BookData::BookData(string bookName, string bookId, int requiredAge, 
+BookData::BookData(std::string bookName, std::string bookId, int requiredAge, 
         int Amount, int Available) :
     Book(bookName, bookId, requiredAge), Amount(Amount), 
     Available(Available) {}
+
 
 void BookData::borrowBook(ostream& file, const string& memberName) {
     if (this->Available > 0) {
