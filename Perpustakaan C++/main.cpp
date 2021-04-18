@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+#include <stdexcept>
 #include <string>
 #include <sstream>
 #include "Class/BookData.h"
@@ -21,9 +22,18 @@ int lastKnownId;
 void writeBookData(ostream& stream, const BookData& data) {
     stream << data.getBookName()    << endl
            << data.getBookId()      << endl
-           << data.getrequiredAge() << endl
+           << data.getRequiredAge() << endl
            << data.getAmount()      << endl
            << data.getAvailable()   << endl;
+}
+
+string toLower(string str) {
+    for (unsigned i = 0; i < str.size(); i++) {
+        if (str[i] >= 'A' && str[i] <= 'Z') {
+            str[i] += 'a' - 'A';
+        }
+    }
+    return str;
 }
 
 BookData readBookData(istream& stream) {
@@ -33,13 +43,18 @@ BookData readBookData(istream& stream) {
     getline(stream, requiredAge);
     getline(stream, amount);
     getline(stream, available);
-    return BookData(bookName, bookId, stoi(requiredAge), stoi(amount), stoi(available));
+    try {
+        return BookData(bookName, bookId, stoi(requiredAge), stoi(amount), stoi(available));
+    } catch(const invalid_argument& err) {
+        cout << "Failed to convert str to int in BookData's data\n)";
+        exit(-1);
+    }
 }
 
 void writeMember(ostream& stream, const Member& data) {
     stream << data.getBookName()    << endl
            << data.getBookId()      << endl
-           << data.getrequiredAge() << endl
+           << data.getRequiredAge() << endl
            << data.getName()        << endl
            << data.getAddress()     << endl
            << data.getTelephone()   << endl
@@ -57,7 +72,12 @@ Member readMember(istream& stream) {
     getline(stream, Telephone);
     getline(stream, Id);
     getline(stream, age);
-    return Member(bookName, bookId, stoi(requiredAge), Name,  Address, Telephone, Id, stoi(age));
+    try {
+        return Member(bookName, bookId, stoi(requiredAge), Name,  Address, Telephone, Id, stoi(age));
+    } catch(const invalid_argument& err) {
+        cout << "Failed to convert str to int in Member Data\n";
+        exit(-1);
+    }
 }
 
 void writeEmployee(ostream& stream, const Employee& data){
@@ -74,20 +94,10 @@ Employee readEmployee(istream& stream) {
     return Employee(nameEmployee, idEmployee, password);
 }
 
-BookData readBookData(istream& stream) {
-    string bookName, bookId, requiredAge, amount, available;
-    getline(stream, bookName);
-    getline(stream, bookId);
-    getline(stream, requiredAge);
-    getline(stream, amount);
-    getline(stream, available);
-    return BookData(bookName, bookId, stoi(requiredAge), stoi(amount), stoi(available));
-}
-
 void gatherData() {
     //BookData reading
     ifstream bookFileIn;
-    bookFileIn.open("Files/BookData.txt");
+    bookFileIn.open("Files/BookData.txt", ios::in);
     bookFileIn >> bookCount; bookFileIn.get();
     listBook = new BookData[bookCount];
     for (int i = 0; i < bookCount; i++) {
@@ -99,9 +109,48 @@ void gatherData() {
     memberFileIn.open("Files/MemberData.txt");
     memberFileIn >> memberCount; memberFileIn.get();
     listMember = new Member[memberCount];
+    for (int i = 0; i < memberCount; i++) {
+        listMember[i] = readMember(memberFileIn);
+    }
+    memberFileIn.close();
+    ////EmployeeData reading
+    ifstream employeeFileIn;
+    employeeFileIn.open("Files/EmployeeData.txt", ios::in);
+    employeeFileIn >> employeeCount; employeeFileIn.get();
+    listEmployee = new Employee[employeeCount];
+    for (int i = 0; i < employeeCount; i++) {
+        listEmployee[i] = readEmployee(employeeFileIn);
+    }
+    employeeFileIn.close();
 }
 
-Employee* search(const string& id) {
+void writeData() {
+    ofstream bookFileOut;
+    bookFileOut.open("Files/BookData.txt", ios::out);
+    bookFileOut << bookCount << endl;
+    for (int i = 0; i < bookCount; i++) {
+        writeBookData(bookFileOut, listBook[i]);
+    }
+    bookFileOut.close();
+
+    ofstream memberFileOut;
+    memberFileOut.open("Files/MemberData.txt", ios::out);
+    memberFileOut << memberCount << endl;
+    for (int i= 0; i < memberCount; i++) {
+        writeMember(memberFileOut, listMember[i]);
+    }
+    memberFileOut.close();
+
+    ofstream employeeFileOut;
+    employeeFileOut.open("Files/EmployeeData.txt", ios::out);
+    employeeFileOut << employeeCount << endl;
+    for (int i = 0; i < employeeCount; i++) {
+        writeEmployee(employeeFileOut, listEmployee[i]);
+    }
+    employeeFileOut.close();
+}
+
+Employee* searchEmployee(const string& id) {
     for (int i = 0; i < employeeCount; i++) {
         if (listEmployee[i].getIdEmployee() == id) {
             return &listEmployee[i];
@@ -116,8 +165,8 @@ void login() {
 
     do {
         cout << "Enter your id: ";
-        cin >> id;
-        ptr = search(id);
+        getline(cin, id);
+        ptr = searchEmployee(id);
         if (ptr == nullptr) {
             cout << "No employee found with the id of " << id << ".\n";
         }
@@ -134,6 +183,28 @@ void showMenu() {
     cout << "3. Show history\n";
     cout << "4. Stock management\n";
     cout << "5. Change password\n";
+    cout << "6. Exit\n";
+}
+
+int userChooseMenu() {
+    showMenu();
+    string inputStr;
+    int input = -1, numOfMenu = 6;
+
+    //TODO: dynamic according to number of menu
+    while (input < 1 || input > numOfMenu) {
+        cout << ">> ";
+        getline(cin, inputStr);
+        try {
+            input = stoi(inputStr);
+            if (input < 1 || input > numOfMenu) {
+                cout << "You should enter an integer between 1 and " << numOfMenu << ".\n";
+            }
+        } catch (const invalid_argument& err) {
+            cout << "You should enter an integer.\n";
+        }
+    }
+    return input;
 }
 
 void changePassword(Employee& currentLibrarian) {
@@ -147,18 +218,9 @@ string createId() {
     return stream.str();
 }
 
-BookData* searchByName(const string& bookName) {
+BookData* searchBook(const string& input) {
     for (int i = 0; i < bookCount; i++) {
-        if (listBook[i].getBookName() == bookName) {
-            return &listBook[i];
-        }
-    }
-    return nullptr;
-}
-
-BookData* searchById(const string& bookId) {
-    for (int i = 0; i < bookCount; i++) {
-        if (listBook[i].getBookId() == bookId) {
+        if (listBook[i].getBookName() == input || listBook[i].getBookId() == input) {
             return &listBook[i];
         }
     }
@@ -167,22 +229,146 @@ BookData* searchById(const string& bookId) {
 
 void stockManagement() {
     string password;
-    cout << "Welcome " << currentLibrarian->getNameEmployee() << endl;
-    cout << "Please insert your password: ";
-    
-    //TODO: add login method to Employee
-    //do {
-        //cin >> password;
-        //if (!currentLibrarian.login(password) && password[0] != '0') {
-            //cout << "Wrong Password, try again (0 to exit)\n>> ";
-        //}
-    //} while (!currentLibrarian.login(password) && password[0] != '0');
+    cout << "Input your password(0 to exit)\n>> ";
+    getline(cin, password);
+    //while (!currentLibrarian->login(password) && password[0] != '0') {
+        //cout << "Wrong password (0 to exit)\n>> ";
+        //getline(cin, password);
+    //}
 
-    currentLibrarian->changePassword();
+    if (password[0] == '0') {
+        return;
+    }
+
+    BookData* selectedBook = nullptr;
+    string inputBook;
+
+    cout << "Welcome " << currentLibrarian->getNameEmployee() << ".\n";
+    cout << "Input a book's ID or Name:\n";
+
+        cout << ">> ";
+        getline(cin, inputBook);
+        selectedBook = searchBook(inputBook);
+        if (selectedBook == nullptr) {
+            cout << "Book not found\n";
+            return;
+        }
+
+    cout << selectedBook->getBookName() << " found.\n";
+    cout << setw(15) << left << "Amount"    << ":" << selectedBook->getAmount()    << endl
+         << setw(15) << left << "Available" << ":" << selectedBook->getAvailable() << endl;
+    cout << "1. Add a book's amount\n";
+    cout << "2. Remove a book's amount\n";
+    
+    string inputStr;
+    int input = -1;
+
+    do {
+        cout << ">> ";
+        getline(cin, inputStr);
+        try {
+            input = stoi(inputStr);
+        } catch(invalid_argument err) {}
+        if (input != 1 && input != 2) {
+            cout << "You should enter 1 or 2\n";
+        }
+    } while (input != 1 && input != 2);
+
+    switch(input) {
+        case 1:
+            //add book amount and available
+            {
+                int inputAmount = -1;
+                string inputAmountStr;
+                do {
+                    cout << "Enter amount(0 to exit):\n>> ";
+                    getline(cin, inputAmountStr);
+                    try {
+                        inputAmount = stoi(inputAmountStr);
+                    } catch (const invalid_argument& err) {
+                        cout << "You should enter an integer.\n";
+                        continue;
+                    }
+                    try {
+                        selectedBook->add(inputAmount);
+                        cout << selectedBook->getBookName() << " added " 
+                             << inputAmount << ".\n";
+                    } catch (const invalid_argument& err) {
+                        cout << err.what() << endl;
+                        inputAmount = -1;
+                        continue;
+                    }
+                } while (inputAmount < 0);
+            }
+            break;
+        case 2:
+            //remove book amount and available
+            {
+                int inputAmount = -1;
+                string inputAmountStr;
+                do {
+                    cout << "Enter amount:\n>> ";
+                    getline(cin, inputAmountStr);
+                    try {
+                        inputAmount = stoi(inputAmountStr);
+                    } catch (const invalid_argument& err) {
+                        cout << "You should enter an integer.\n";
+                        continue;
+                    }
+                    try {
+                        selectedBook->remove(inputAmount);
+                        cout << selectedBook->getBookName() << " removed " 
+                             << inputAmount << ".\n";
+                    } catch (const invalid_argument& err) {
+                        cout << err.what() << endl;
+                        inputAmount = -1;
+                        continue;
+                    }
+
+                } while (inputAmount < 0);
+            }
+            break;
+        default:
+            break;
+    }
+    writeData();
 }
 
 int main() {
+    gatherData();
     login();
-    showMenu();
+    int menuChosen = userChooseMenu();
+
+    switch(menuChosen) {
+        case 1:
+            cout << "Chosen 1\n";
+            break;
+        case 2:
+            cout << "Chosen 2\n";
+            break;
+        case 3:
+            cout << "Chosen 3\n";
+            break;
+        case 4:
+            {
+                string repeatStr;
+                do {
+                    stockManagement();
+                    cout << "Finished doing stock management(y/n)?\n>> ";
+                    getline(cin, repeatStr);
+                    repeatStr = toLower(repeatStr);
+                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
+            }
+            break;
+        case 5:
+            currentLibrarian->changePassword();
+            break;
+        case 6:
+            cout << "Chosen 6\n";
+            break;
+        default:
+            cout << "Default\n";
+            break;
+    }
     return 0;
 }

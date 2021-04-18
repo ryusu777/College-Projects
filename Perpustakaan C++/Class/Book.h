@@ -15,30 +15,15 @@ class Book{
         virtual void borrowBook() {}
         virtual void returnBook() {}
 
-        void setBookName(std::string bookName)
-        {
-            this->bookName=bookName;
-        }
+        void setBookName(std::string bookName);
 
-        void setBookId(std::string bookId)
-        {
-            this->bookId=bookId;
-        }
+        void setBookId(std::string bookId);
 
-        void setRequiredAge(int requiredAge)
-        {
-            this->requiredAge=requiredAge;
-        }
+        void setRequiredAge(int requiredAge);
 
-        std::string getBookName() const {
-            return bookName;
-        }
+        std::string getBookName() const;
 
-        std::string getBookId() const {
-            return bookId;
-        }
+        std::string getBookId() const;
 
-        int getrequiredAge() const {
-            return requiredAge;
-        }
+        int getRequiredAge() const;
 };
