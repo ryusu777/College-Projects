@@ -22,7 +22,7 @@ int lastKnownId;
 void writeBookData(ostream& stream, const BookData& data) {
     stream << data.getBookName()    << endl
            << data.getBookId()      << endl
-           << data.getrequiredAge() << endl
+           << data.getRequiredAge() << endl
            << data.getAmount()      << endl
            << data.getAvailable()   << endl;
 }
@@ -54,7 +54,7 @@ BookData readBookData(istream& stream) {
 void writeMember(ostream& stream, const Member& data) {
     stream << data.getBookName()    << endl
            << data.getBookId()      << endl
-           << data.getrequiredAge() << endl
+           << data.getRequiredAge() << endl
            << data.getName()        << endl
            << data.getAddress()     << endl
            << data.getTelephone()   << endl
@@ -361,7 +361,7 @@ int main() {
             }
             break;
         case 5:
-            cout << "Chosen 5\n";
+            currentLibrarian->changePassword();
             break;
         case 6:
             cout << "Chosen 6\n";
