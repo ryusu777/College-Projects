@@ -246,13 +246,13 @@ void stockManagement() {
     cout << "Welcome " << currentLibrarian->getNameEmployee() << ".\n";
     cout << "Input a book's ID or Name:\n";
 
-        cout << ">> ";
-        getline(cin, inputBook);
-        selectedBook = searchBook(inputBook);
-        if (selectedBook == nullptr) {
-            cout << "Book not found\n";
-            return;
-        }
+    cout << ">> ";
+    getline(cin, inputBook);
+    selectedBook = searchBook(inputBook);
+    if (selectedBook == nullptr) {
+        cout << "Book not found\n";
+        return;
+    }
 
     cout << selectedBook->getBookName() << " found.\n";
     cout << setw(15) << left << "Amount"    << ":" << selectedBook->getAmount()    << endl
