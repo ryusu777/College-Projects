@@ -159,6 +159,23 @@ Employee* searchEmployee(const string& id) {
     return nullptr;
 }
 
+Member* searchMember(const string& id){
+    for(int i=0; i<memberCount; i++){
+        if(listMember[i].getId()==id && listMember[i].getBookName()!="-"){
+            return &listMember[i];
+        }
+    }
+    return nullptr;
+}
+
+bool MemberHasBook(const Member& input){
+    if(input.getBookName()!= "-"){
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void login() {
     string id;
     Employee *ptr = nullptr;
@@ -246,13 +263,13 @@ void stockManagement() {
     cout << "Welcome " << currentLibrarian->getNameEmployee() << ".\n";
     cout << "Input a book's ID or Name:\n";
 
-    cout << ">> ";
-    getline(cin, inputBook);
-    selectedBook = searchBook(inputBook);
-    if (selectedBook == nullptr) {
-        cout << "Book not found\n";
-        return;
-    }
+        cout << ">> ";
+        getline(cin, inputBook);
+        selectedBook = searchBook(inputBook);
+        if (selectedBook == nullptr) {
+            cout << "Book not found\n";
+            return;
+        }
 
     cout << selectedBook->getBookName() << " found.\n";
     cout << setw(15) << left << "Amount"    << ":" << selectedBook->getAmount()    << endl
@@ -334,6 +351,69 @@ void stockManagement() {
     writeData();
 }
 
+void menu_1() {
+    string memberId, bookName;
+    Member *ptr1 = nullptr;
+    BookData *ptr2 = nullptr;
+
+    //check member's id
+    cout << "Input Member's Id: ";
+    getline(cin, memberId);
+    ptr1 = searchMember(memberId);
+    if (ptr1 == nullptr) {
+        cout << "No member found with the id of " << memberId << ".\n";
+        return;
+    }
+
+    //check if member haven't return book
+    if (MemberHasBook(*ptr1)==true) {
+        cout << "Member still have a book. Please return it first\n";
+        return;
+    }
+        
+    //check if the book's title is found
+    do {
+        cout << "Input Book's Name: ";
+        getline(cin, bookName);
+        ptr2 = searchBook(bookName);
+        if (ptr2 != nullptr) {
+            cout << "Book " << ptr2->getBookName() << " found.\n";
+            if (ptr1->getAge() < ptr2->getrequiredAge()) {
+                cout << "Your age is not sufficient for this book\n";
+            } else {
+                 //check if book is available
+                ofstream historyFile;
+                historyFile.open("Files/History.txt", ios::app);
+                try {
+                    ptr2->borrowBook (historyFile, ptr1->getName());
+                    ptr1->borrowBook (ptr2->getBookName(), ptr2->getBookId(), ptr2->getrequiredAge());
+                    cout << "Book borrowed\n";
+                    historyFile.close();
+                    return;
+                    writeData();
+                } catch(const invalid_argument& err){
+                    cout << err.what() << endl;
+                    historyFile.close();
+                }    
+            }            
+        } else{
+            cout << "No book found.\n";
+        }
+        
+        string repeatStr;
+        do {
+            cout << "Retry input book?(y/n)\n";
+            getline(cin, repeatStr);
+            repeatStr = toLower(repeatStr);
+        } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
+        if (repeatStr[0] == 'y') {
+            continue;
+        }else{
+            return;
+        }
+    } while (true);
+}
+
 int main() {
     gatherData();
     login();
@@ -341,7 +421,15 @@ int main() {
 
     switch(menuChosen) {
         case 1:
-            cout << "Chosen 1\n";
+            {
+                string repeatStr;
+                do {
+                    menu_1();
+                    cout << "Finished doing borrow book(y/n)?\n>> ";
+                    getline(cin, repeatStr);
+                    repeatStr = toLower(repeatStr);
+                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
+            }
             break;
         case 2:
             cout << "Chosen 2\n";
