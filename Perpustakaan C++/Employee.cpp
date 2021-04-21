@@ -1,8 +1,11 @@
 #include "Class/Employee.h"
 
-Employee::Employee(std::string nameEmployee, std::string idEmployee, std::string password) : 
-        nameEmployee(nameEmployee), idEmployee(idEmployee), password(password) {}
+Employee::Employee(std::string nameEmployee, std::string idEmployee, 
+                   std::string password) : 
+        nameEmployee(nameEmployee), idEmployee(idEmployee), 
+        password(password) {}
 
+Employee::Employee() : nameEmployee(""), idEmployee(""), password("") {}
 void Employee::setNameEmployee (std::string nameEmployee)
 {
     this->nameEmployee=nameEmployee;
@@ -60,5 +63,3 @@ bool Employee::login(std::string inputPassword) const{
         return false;
     }
 }
-
-

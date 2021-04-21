@@ -23,14 +23,7 @@ class Member : public Book{
 
     int getAge() const;
 
-    void borrowBook(std::string bookName, std::string bookId, int requiredAge){
-        this->bookName=bookName;
-        this->bookId=bookId;
-        this->requiredAge=requiredAge;
-    }
+    void borrowBook(std::string bookName, std::string bookId, int requiredAge);
 
-    void returnBook(){
-        bookId.clear();
-        bookName.clear();
-    }
+    void returnBook();
 };

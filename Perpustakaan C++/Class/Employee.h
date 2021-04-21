@@ -5,9 +5,9 @@
 
 class Employee{
     public:
-        Employee() : nameEmployee(""), idEmployee(""), password("") {}
-        Employee(std::string nameEmployee, std::string idEmployee, std::string password) :
-        nameEmployee(nameEmployee), idEmployee(idEmployee), password(password) {}
+        Employee();
+
+        Employee(std::string nameEmployee, std::string idEmployee, std::string password);
 
         void setNameEmployee (std::string nameEmployee);
 
