@@ -378,7 +378,7 @@ void menu_1() {
         ptr2 = searchBook(bookName);
         if (ptr2 != nullptr) {
             cout << "Book " << ptr2->getBookName() << " found.\n";
-            if (ptr1->getAge() < ptr2->getrequiredAge()) {
+            if (ptr1->getAge() < ptr2->getRequiredAge()) {
                 cout << "Your age is not sufficient for this book\n";
             } else {
                  //check if book is available
@@ -386,7 +386,7 @@ void menu_1() {
                 historyFile.open("Files/History.txt", ios::app);
                 try {
                     ptr2->borrowBook (historyFile, ptr1->getName());
-                    ptr1->borrowBook (ptr2->getBookName(), ptr2->getBookId(), ptr2->getrequiredAge());
+                    ptr1->borrowBook (ptr2->getBookName(), ptr2->getBookId(), ptr2->getRequiredAge());
                     cout << "Book borrowed\n";
                     historyFile.close();
                     return;
