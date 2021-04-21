@@ -1,0 +1,33 @@
+4
+-
+-
+-1
+Harry
+Jakarta Timur
+081123456789
+M-0001
+23
+Deitel C++
+MU0003
+13
+Azizah
+Bekasi
+081987654321
+M-0003
+18
+Biology Of Belief
+MU0001
+13
+Larissa
+Tangerang
+081155665443
+M-0004
+20
+-
+-
+1
+Tommy
+Depok
+083221554432
+M-0007
+15

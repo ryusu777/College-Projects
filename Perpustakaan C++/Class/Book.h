@@ -9,8 +9,7 @@ class Book{
 
     public:
 
-        Book(std::string bookName, std::string bookId, int requiredAge) :
-            bookName(bookName), bookId(bookId), requiredAge(requiredAge) {}
+        Book(std::string bookName, std::string bookId, int requiredAge);
 
         virtual void borrowBook() {}
         virtual void returnBook() {}
