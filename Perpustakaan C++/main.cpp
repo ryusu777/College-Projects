@@ -126,6 +126,7 @@ void gatherData() {
 }
 
 void writeData() {
+    //TODO: Separate each read into functions
     ofstream bookFileOut;
     bookFileOut.open("Files/BookData.txt", ios::out);
     bookFileOut << bookCount << endl;
@@ -445,6 +446,7 @@ void addTitle() {
         }
     }
 
+
     while (true) {
         cout << "Enter book's current stock: ";
         getline(cin, amount);
@@ -459,15 +461,36 @@ void addTitle() {
     BookData newBook(bookName, bookId, stoi(requiredAge), stoi(amount), 
                      stoi(amount));
 
-    bookCount++;
-    ofstream bookFileOut;
-    bookFileOut.open("Files/BookData.txt", ios::out);
-    bookFileOut << bookCount << endl;
-    for (int i = 0; i < bookCount - 1; i++) {
-        writeBookData(bookFileOut, listBook[i]);
+    int width = 18;
+    cout << "\nData collected:\n";
+    cout << setw(width) << "Name"            << ": " << newBook.getBookName() << endl;
+    cout << setw(width) << "Id"              << ": " << newBook.getBookId() << endl;
+    cout << setw(width) << "Required Age"    << ": " << newBook.getRequiredAge() << endl;
+    cout << setw(width) << "Stock Amount"    << ": " << newBook.getAmount() << endl;
+    cout << setw(width) << "Stock Available" << ": " << newBook.getAvailable() << endl;
+    cout << endl;
+
+    string confirmationStr;
+    do {
+        cout << "Sure to add this book?(y/n)\n";
+        getline(cin, confirmationStr);
+        confirmationStr = toLower(confirmationStr);
+    } while (confirmationStr.size() != 1 ||
+            (confirmationStr[0] != 'y' && confirmationStr[0] != 'n'));
+    if (confirmationStr[0] == 'y') {
+        bookCount++;
+        ofstream bookFileOut;
+        bookFileOut.open("Files/BookData.txt", ios::out);
+        bookFileOut << bookCount << endl;
+        for (int i = 0; i < bookCount - 1; i++) {
+            writeBookData(bookFileOut, listBook[i]);
+        }
+        writeBookData(bookFileOut, newBook);
+        bookFileOut.close();
+        
+    } else {
+        return;
     }
-    writeBookData(bookFileOut, newBook);
-    bookFileOut.close();
 }
 
 int main() {
