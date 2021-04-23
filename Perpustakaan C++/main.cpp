@@ -19,6 +19,7 @@ int bookCount;
 int memberCount;
 
 int lastKnownBookDataId;
+int lastKnownEmployeeId;
 
 void writeBookData(ostream& stream, const BookData& data) {
     stream << data.getBookName()    << endl
@@ -239,6 +240,17 @@ string createBookDataId() {
     lastKnownBookDataId++;
     stringstream stream;
     stream << "MU" << setfill('0') << setw(4) << to_string(lastKnownBookDataId);
+    return stream.str();
+}
+
+string createIdEmployee() {
+    string employeeLastId = listEmployee[employeeCount-1].getIdEmployee();
+    employeeLastId = employeeLastId.substr(1);
+    lastKnownEmployeeId = stoi(employeeLastId);
+
+    lastKnownEmployeeId++;
+    stringstream stream;
+    stream << "E" << setfill('0') << setw(3) << to_string(lastKnownEmployeeId);
     return stream.str();
 }
 
@@ -468,6 +480,40 @@ void addTitle() {
     }
     writeBookData(bookFileOut, newBook);
     bookFileOut.close();
+}
+
+void addEmployee() {
+    string nameEmployee, idEmployee, password;
+    cout << "Input Employee's Name: ";
+    getline(cin, nameEmployee);
+    idEmployee = createIdEmployee();
+
+    Employee newEmployee(nameEmployee, idEmployee, "");
+    newEmployee.changePassword();
+
+    cout << "Collected Data: "<< endl;
+    cout << "Name: " << newEmployee.getNameEmployee() << endl;
+    cout << "Id: " << newEmployee.getIdEmployee() << endl;
+    string repeatStr;
+        do {
+            cout << "Sure to Input This Employee's Data?(y/n)\n";
+            getline(cin, repeatStr);
+            repeatStr = toLower(repeatStr);
+        } while (repeatStr.size() != 1 ||
+                (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
+            if (repeatStr[0] == 'y') {
+                employeeCount++;
+                ofstream employeeFileOut;
+                employeeFileOut.open("Files/Employee.txt", ios::out);
+                employeeFileOut << employeeCount << endl;
+                for (int i = 0; i < employeeCount - 1; i++) {
+                    writeEmployee(employeeFileOut, listEmployee[i]);
+                }
+                writeEmployee(employeeFileOut, newEmployee);
+                employeeFileOut.close();;
+        } else {
+            return;
+        }
 }
 
 int main() {

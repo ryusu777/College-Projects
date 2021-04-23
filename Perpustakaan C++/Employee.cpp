@@ -18,7 +18,8 @@ void Employee::setIdEmployee (std::string idEmployee)
 
 void Employee::changePassword()
 {
-    std::string oldPassword;
+    if (this->password.size() != 0) {
+        std::string oldPassword;
         do {
             std::cout << "Input Current Password" << std::endl;
             std::getline(std::cin, oldPassword);
@@ -26,7 +27,8 @@ void Employee::changePassword()
                 std::cout << "Wrong Password\n";
             }
         } while (oldPassword != this->password);
-
+    }
+    
         std::string newPassword, passwordConfirm;
 
         do {
