@@ -17,7 +17,9 @@ Member *listMember;
 int employeeCount;
 int bookCount;
 int memberCount;
-int lastKnownId;
+
+int lastKnownBookDataId;
+int lastKnownEmployeeId;
 
 void writeBookData(ostream& stream, const BookData& data) {
     stream << data.getBookName()    << endl
@@ -80,7 +82,7 @@ Member readMember(istream& stream) {
     }
 }
 
-void writeEmployee(ostream& stream, const Employee& data){
+void writeEmployee(ostream& stream, const Employee& data) {
     stream << data.getNameEmployee()    << endl
            << data.getIdEmployee()      << endl
            << data.getPassword()        << endl;
@@ -159,7 +161,7 @@ Employee* searchEmployee(const string& id) {
     return nullptr;
 }
 
-Member* searchMember(const string& id){
+Member* searchMember(const string& id) {
     for(int i=0; i<memberCount; i++){
         if(listMember[i].getId()==id && listMember[i].getBookName()!="-"){
             return &listMember[i];
@@ -168,8 +170,8 @@ Member* searchMember(const string& id){
     return nullptr;
 }
 
-bool MemberHasBook(const Member& input){
-    if(input.getBookName()!= "-"){
+bool MemberHasBook(const Member& input) {
+    if (input.getBookName() != "-") {
         return true;
     } else {
         return false;
@@ -200,7 +202,7 @@ void showMenu() {
     cout << "3. Show history\n";
     cout << "4. Stock management\n";
     cout << "5. Change password\n";
-    cout << "6. Exit\n";
+    cout << "6. Add Title\n";
 }
 
 int userChooseMenu() {
@@ -228,10 +230,27 @@ void changePassword(Employee& currentLibrarian) {
     currentLibrarian.changePassword();
 }
 
-string createId() {
-    lastKnownId++;
+string createBookDataId() {
+    //string lastId = listBook[bookCount - 1].getBookId();
+    //lastId = lastId.substr(2);
+    //lastKnownBookDataId = stoi(lastId);
+
+    lastKnownBookDataId = stoi(listBook[bookCount - 1].getBookId().substr(2));
+
+    lastKnownBookDataId++;
     stringstream stream;
-    stream << "MU" << setfill('0') << setw(4) << to_string(lastKnownId);
+    stream << "MU" << setfill('0') << setw(4) << to_string(lastKnownBookDataId);
+    return stream.str();
+}
+
+string createIdEmployee() {
+    string employeeLastId = listEmployee[employeeCount-1].getIdEmployee();
+    employeeLastId = employeeLastId.substr(1);
+    lastKnownEmployeeId = stoi(employeeLastId);
+
+    lastKnownEmployeeId++;
+    stringstream stream;
+    stream << "E" << setfill('0') << setw(3) << to_string(lastKnownEmployeeId);
     return stream.str();
 }
 
@@ -351,12 +370,12 @@ void stockManagement() {
     writeData();
 }
 
-void menu_1() {
+void borrowBook() {
     string memberId, bookName;
     Member *ptr1 = nullptr;
     BookData *ptr2 = nullptr;
 
-    //check member's id
+    // check member's id
     cout << "Input Member's Id: ";
     getline(cin, memberId);
     ptr1 = searchMember(memberId);
@@ -365,58 +384,151 @@ void menu_1() {
         return;
     }
 
-    //check if member haven't return book
-    if (MemberHasBook(*ptr1)==true) {
+    // check if member haven't return book
+    if (MemberHasBook(*ptr1) == true) {
         cout << "Member still have a book. Please return it first\n";
         return;
     }
-        
-    //check if the book's title is found
+
+    // check if the book's title is found
     do {
         cout << "Input Book's Name: ";
         getline(cin, bookName);
         ptr2 = searchBook(bookName);
         if (ptr2 != nullptr) {
             cout << "Book " << ptr2->getBookName() << " found.\n";
-            if (ptr1->getAge() < ptr2->getrequiredAge()) {
+            if (ptr1->getAge() < ptr2->getRequiredAge()) {
                 cout << "Your age is not sufficient for this book\n";
             } else {
-                 //check if book is available
+                // check if book is available
                 ofstream historyFile;
                 historyFile.open("Files/History.txt", ios::app);
                 try {
-                    ptr2->borrowBook (historyFile, ptr1->getName());
-                    ptr1->borrowBook (ptr2->getBookName(), ptr2->getBookId(), ptr2->getrequiredAge());
+                    ptr2->borrowBook(historyFile, ptr1->getName());
+                    ptr1->borrowBook(ptr2->getBookName(), ptr2->getBookId(),
+                            ptr2->getRequiredAge());
                     cout << "Book borrowed\n";
                     historyFile.close();
                     return;
                     writeData();
-                } catch(const invalid_argument& err){
+                } catch (const invalid_argument &err) {
                     cout << err.what() << endl;
                     historyFile.close();
-                }    
-            }            
-        } else{
+                }
+            }
+        } else {
             cout << "No book found.\n";
         }
-        
+
         string repeatStr;
         do {
             cout << "Retry input book?(y/n)\n";
             getline(cin, repeatStr);
             repeatStr = toLower(repeatStr);
-        } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
+        } while (repeatStr.size() != 1 ||
+                (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
         if (repeatStr[0] == 'y') {
             continue;
-        }else{
+        } else {
             return;
         }
     } while (true);
 }
 
+void showHistory(ifstream& file) {
+    string input;
+
+    while(!file.eof())
+    {
+        getline(file, input);
+        cout << input;
+    }
+}
+
+void libraryManagement();
+
+void addTitle() {
+    string bookName, bookId, requiredAge, amount, available;
+
+    //TODO: retry input for every input
+    string repeat;
+    cout << "Enter book's name: ";
+    getline(cin, bookName);
+    bookId = createBookDataId();
+
+    while (true) {
+        cout << "Enter book's requiredAge: ";
+        getline(cin, requiredAge);
+        try {
+            stoi(requiredAge);
+            break;
+        } catch (const invalid_argument& err) {
+            cout << "Not an integer\n";
+        }
+    }
+
+    while (true) {
+        cout << "Enter book's current stock: ";
+        getline(cin, amount);
+        try {
+            stoi(amount);
+            break;
+        } catch (const invalid_argument& err) {
+            cout << "Not an integer\n";
+        }
+    }
+
+    BookData newBook(bookName, bookId, stoi(requiredAge), stoi(amount), 
+                     stoi(amount));
+
+    bookCount++;
+    ofstream bookFileOut;
+    bookFileOut.open("Files/BookData.txt", ios::out);
+    bookFileOut << bookCount << endl;
+    for (int i = 0; i < bookCount - 1; i++) {
+        writeBookData(bookFileOut, listBook[i]);
+    }
+    writeBookData(bookFileOut, newBook);
+    bookFileOut.close();
+}
+
+void addEmployee() {
+    string nameEmployee, idEmployee, password;
+    cout << "Input Employee's Name: ";
+    getline(cin, nameEmployee);
+    idEmployee = createIdEmployee();
+
+    Employee newEmployee(nameEmployee, idEmployee, "");
+    newEmployee.changePassword();
+
+    cout << "Collected Data: "<< endl;
+    cout << "Name: " << newEmployee.getNameEmployee() << endl;
+    cout << "Id: " << newEmployee.getIdEmployee() << endl;
+    string repeatStr;
+        do {
+            cout << "Sure to Input This Employee's Data?(y/n)\n";
+            getline(cin, repeatStr);
+            repeatStr = toLower(repeatStr);
+        } while (repeatStr.size() != 1 ||
+                (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
+            if (repeatStr[0] == 'y') {
+                employeeCount++;
+                ofstream employeeFileOut;
+                employeeFileOut.open("Files/Employee.txt", ios::out);
+                employeeFileOut << employeeCount << endl;
+                for (int i = 0; i < employeeCount - 1; i++) {
+                    writeEmployee(employeeFileOut, listEmployee[i]);
+                }
+                writeEmployee(employeeFileOut, newEmployee);
+                employeeFileOut.close();;
+        } else {
+            return;
+        }
+}
+
 int main() {
     gatherData();
-    login();
+    //login();
     int menuChosen = userChooseMenu();
 
     switch(menuChosen) {
@@ -424,10 +536,10 @@ int main() {
             {
                 string repeatStr;
                 do {
-                    menu_1();
-                    cout << "Finished doing borrow book(y/n)?\n>> ";
-                    getline(cin, repeatStr);
-                    repeatStr = toLower(repeatStr);
+                  borrowBook();
+                  cout << "Finished doing borrow book(y/n)?\n>> ";
+                  getline(cin, repeatStr);
+                  repeatStr = toLower(repeatStr);
                 } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
             }
             break;
@@ -435,7 +547,12 @@ int main() {
             cout << "Chosen 2\n";
             break;
         case 3:
-            cout << "Chosen 3\n";
+            {
+            ifstream file;
+            file.open("Files/History.txt", ios::in);
+                showHistory(file);
+            file.close();
+            }
             break;
         case 4:
             {
@@ -452,7 +569,7 @@ int main() {
             currentLibrarian->changePassword();
             break;
         case 6:
-            cout << "Chosen 6\n";
+            libraryManagement();
             break;
         default:
             cout << "Default\n";

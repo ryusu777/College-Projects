@@ -1,8 +1,11 @@
 #include "Class/Employee.h"
 
-Employee::Employee(std::string nameEmployee, std::string idEmployee, std::string password) : 
-        nameEmployee(nameEmployee), idEmployee(idEmployee), password(password) {}
+Employee::Employee(std::string nameEmployee, std::string idEmployee, 
+                   std::string password) : 
+        nameEmployee(nameEmployee), idEmployee(idEmployee), 
+        password(password) {}
 
+Employee::Employee() : nameEmployee(""), idEmployee(""), password("") {}
 void Employee::setNameEmployee (std::string nameEmployee)
 {
     this->nameEmployee=nameEmployee;
@@ -15,7 +18,8 @@ void Employee::setIdEmployee (std::string idEmployee)
 
 void Employee::changePassword()
 {
-    std::string oldPassword;
+    if (this->password.size() != 0) {
+        std::string oldPassword;
         do {
             std::cout << "Input Current Password" << std::endl;
             std::getline(std::cin, oldPassword);
@@ -23,7 +27,8 @@ void Employee::changePassword()
                 std::cout << "Wrong Password\n";
             }
         } while (oldPassword != this->password);
-
+    }
+    
         std::string newPassword, passwordConfirm;
 
         do {
@@ -60,5 +65,3 @@ bool Employee::login(std::string inputPassword) const{
         return false;
     }
 }
-
-
