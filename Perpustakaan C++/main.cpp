@@ -22,12 +22,12 @@ int lastKnownBookDataId;
 int lastKnownMemberId;
 int lastKnownEmployeeId;
 
-void writeBookData(ostream& stream, const BookData& data) {
+void write(ostream& stream, const BookData& data) {
     stream << data.getBookName()    << endl
-           << data.getBookId()      << endl
-           << data.getRequiredAge() << endl
-           << data.getAmount()      << endl
-           << data.getAvailable()   << endl;
+        << data.getBookId()      << endl
+        << data.getRequiredAge() << endl
+        << data.getAmount()      << endl
+        << data.getAvailable()   << endl;
 }
 
 string toLower(string str) {
@@ -54,15 +54,15 @@ BookData readBookData(istream& stream) {
     }
 }
 
-void writeMember(ostream& stream, const Member& data) {
+void write(ostream& stream, const Member& data) {
     stream << data.getBookName()    << endl
-           << data.getBookId()      << endl
-           << data.getRequiredAge() << endl
-           << data.getName()        << endl
-           << data.getAddress()     << endl
-           << data.getTelephone()   << endl
-           << data.getId()          << endl
-           << data.getAge()         << endl;
+        << data.getBookId()      << endl
+        << data.getRequiredAge() << endl
+        << data.getName()        << endl
+        << data.getAddress()     << endl
+        << data.getTelephone()   << endl
+        << data.getId()          << endl
+        << data.getAge()         << endl;
 }
 
 Member readMember(istream& stream) {
@@ -83,10 +83,10 @@ Member readMember(istream& stream) {
     }
 }
 
-void writeEmployee(ostream& stream, const Employee& data) {
+void write(ostream& stream, const Employee& data) {
     stream << data.getNameEmployee()    << endl
-           << data.getIdEmployee()      << endl
-           << data.getPassword()        << endl;
+        << data.getIdEmployee()      << endl
+        << data.getPassword()        << endl;
 }
 
 Employee readEmployee(istream& stream) {
@@ -97,19 +97,24 @@ Employee readEmployee(istream& stream) {
     return Employee(nameEmployee, idEmployee, password);
 }
 
-void gatherData() {
-    //BookData reading
-    ifstream bookFileIn;
-    bookFileIn.open("Files/BookData.txt", ios::in);
+void readingBookData(ifstream& bookFileIn) {
     bookFileIn >> bookCount; bookFileIn.get();
     listBook = new BookData[bookCount];
     for (int i = 0; i < bookCount; i++) {
         listBook[i] = readBookData(bookFileIn);
     }
+}
+
+void gatherData() {
+    //BookData reading
+    ifstream bookFileIn;
+    bookFileIn.open("Files/BookData.txt", ios::in);
+    readingBookData(bookFileIn);
     bookFileIn.close();
+
     //MemberData reading
     ifstream memberFileIn;
-    memberFileIn.open("Files/MemberData.txt");
+    memberFileIn.open("Files/Member.txt");
     memberFileIn >> memberCount; memberFileIn.get();
     listMember = new Member[memberCount];
     for (int i = 0; i < memberCount; i++) {
@@ -118,7 +123,7 @@ void gatherData() {
     memberFileIn.close();
     ////EmployeeData reading
     ifstream employeeFileIn;
-    employeeFileIn.open("Files/EmployeeData.txt", ios::in);
+    employeeFileIn.open("Files/Employee.txt", ios::in);
     employeeFileIn >> employeeCount; employeeFileIn.get();
     listEmployee = new Employee[employeeCount];
     for (int i = 0; i < employeeCount; i++) {
@@ -127,29 +132,39 @@ void gatherData() {
     employeeFileIn.close();
 }
 
+void writeList(ostream& output, BookData* list) {
+    for (int i = 0; i < bookCount; i++) {
+        write(output, list[i]);
+    }
+}
+
+void writeList(ostream& output, Member* list) {
+    for (int i = 0; i < memberCount; i++) {
+        write(output, list[i]);
+    }
+}
+
 void writeData() {
     //TODO: Separate each read into functions
     ofstream bookFileOut;
     bookFileOut.open("Files/BookData.txt", ios::out);
     bookFileOut << bookCount << endl;
-    for (int i = 0; i < bookCount; i++) {
-        writeBookData(bookFileOut, listBook[i]);
-    }
+    writeList(bookFileOut, listBook);
     bookFileOut.close();
 
     ofstream memberFileOut;
-    memberFileOut.open("Files/MemberData.txt", ios::out);
+    memberFileOut.open("Files/Member.txt", ios::out);
     memberFileOut << memberCount << endl;
     for (int i= 0; i < memberCount; i++) {
-        writeMember(memberFileOut, listMember[i]);
+        write(memberFileOut, listMember[i]);
     }
     memberFileOut.close();
 
     ofstream employeeFileOut;
-    employeeFileOut.open("Files/EmployeeData.txt", ios::out);
+    employeeFileOut.open("Files/Employee.txt", ios::out);
     employeeFileOut << employeeCount << endl;
     for (int i = 0; i < employeeCount; i++) {
-        writeEmployee(employeeFileOut, listEmployee[i]);
+        write(employeeFileOut, listEmployee[i]);
     }
     employeeFileOut.close();
 }
@@ -165,7 +180,7 @@ Employee* searchEmployee(const string& id) {
 
 Member* searchMember(const string& id) {
     for(int i=0; i<memberCount; i++){
-        if(listMember[i].getId()==id && listMember[i].getBookName()!="-"){
+        if(listMember[i].getId()==id){
             return &listMember[i];
         }
     }
@@ -282,8 +297,8 @@ void stockManagement() {
     cout << "Input your password(0 to exit)\n>> ";
     getline(cin, password);
     //while (!currentLibrarian->login(password) && password[0] != '0') {
-        //cout << "Wrong password (0 to exit)\n>> ";
-        //getline(cin, password);
+    //cout << "Wrong password (0 to exit)\n>> ";
+    //getline(cin, password);
     //}
 
     if (password[0] == '0') {
@@ -296,20 +311,20 @@ void stockManagement() {
     cout << "Welcome " << currentLibrarian->getNameEmployee() << ".\n";
     cout << "Input a book's ID or Name:\n";
 
-        cout << ">> ";
-        getline(cin, inputBook);
-        selectedBook = searchBook(inputBook);
-        if (selectedBook == nullptr) {
-            cout << "Book not found\n";
-            return;
-        }
+    cout << ">> ";
+    getline(cin, inputBook);
+    selectedBook = searchBook(inputBook);
+    if (selectedBook == nullptr) {
+        cout << "Book not found\n";
+        return;
+    }
 
     cout << selectedBook->getBookName() << " found.\n";
     cout << setw(15) << left << "Amount"    << ":" << selectedBook->getAmount()    << endl
-         << setw(15) << left << "Available" << ":" << selectedBook->getAvailable() << endl;
+        << setw(15) << left << "Available" << ":" << selectedBook->getAvailable() << endl;
     cout << "1. Add a book's amount\n";
     cout << "2. Remove a book's amount\n";
-    
+
     string inputStr;
     int input = -1;
 
@@ -342,7 +357,7 @@ void stockManagement() {
                     try {
                         selectedBook->add(inputAmount);
                         cout << selectedBook->getBookName() << " added " 
-                             << inputAmount << ".\n";
+                            << inputAmount << ".\n";
                     } catch (const invalid_argument& err) {
                         cout << err.what() << endl;
                         inputAmount = -1;
@@ -368,7 +383,7 @@ void stockManagement() {
                     try {
                         selectedBook->remove(inputAmount);
                         cout << selectedBook->getBookName() << " removed " 
-                             << inputAmount << ".\n";
+                            << inputAmount << ".\n";
                     } catch (const invalid_argument& err) {
                         cout << err.what() << endl;
                         inputAmount = -1;
@@ -423,8 +438,8 @@ void borrowBook() {
                             ptrBookData->getRequiredAge());
                     cout << "Book borrowed\n";
                     historyFile.close();
-                    return;
                     writeData();
+                    return;
                 } catch (const invalid_argument &err) {
                     cout << err.what() << endl;
                     historyFile.close();
@@ -472,21 +487,19 @@ void returnBook() {
     }
 
     // check if the book's title is found
-    do {
-        ptrBookData = searchBook(ptrMember->getBookName());
-        if (ptrBookData != nullptr) {
-            cout << "Book " << ptrBookData->getBookName() << " found.\n";
-            ofstream historyFile;
-            historyFile.open("Files/History.txt", ios::app);
-            ptrBookData->returnBook(historyFile, ptrMember->getName());
-            ptrMember->returnBook();
-            cout << "Book returned\n";
-            historyFile.close();
-            writeData();
-        } else {
-            cout << "No book found.\n";
-        }
-    } while (true);
+    ptrBookData = searchBook(ptrMember->getBookName());
+    if (ptrBookData != nullptr) {
+        cout << "Book " << ptrBookData->getBookName() << " found.\n";
+        ofstream historyFile;
+        historyFile.open("Files/History.txt", ios::app);
+        ptrBookData->returnBook(historyFile, ptrMember->getName());
+        ptrMember->returnBook();
+        cout << "Book returned\n";
+        historyFile.close();
+        writeData();
+    } else {
+        cout << "No book found.\n";
+    }
 }
 
 void showHistory(ifstream& file) {
@@ -499,7 +512,9 @@ void showHistory(ifstream& file) {
     }
 }
 
-void libraryManagement();
+void libraryManagement() {
+    cout << "Hello world\n";
+}
 
 void addTitle() {
     string bookName, bookId, requiredAge, amount, available;
@@ -534,7 +549,7 @@ void addTitle() {
     }
 
     BookData newBook(bookName, bookId, stoi(requiredAge), stoi(amount), 
-                     stoi(amount));
+            stoi(amount));
 
     int width = 18;
     cout << "\nData collected:\n";
@@ -558,16 +573,92 @@ void addTitle() {
         bookFileOut.open("Files/BookData.txt", ios::out);
         bookFileOut << bookCount << endl;
         for (int i = 0; i < bookCount - 1; i++) {
-            writeBookData(bookFileOut, listBook[i]);
+            write(bookFileOut, listBook[i]);
         }
-        writeBookData(bookFileOut, newBook);
+        write(bookFileOut, newBook);
         bookFileOut.close();
-        
+
     } else {
         return;
     }
 }
 
+void removeTitle() {
+    cout << "Welcome\n";
+    int nameWidth = 25, numberWidth = 5, idWidth = 10, availableWidth = 15;
+    cout << left << setw(numberWidth) << "No."
+        << left << setw(nameWidth) << "Title"
+        << left << setw(idWidth) << "Id"
+        << left << setw(availableWidth) << "Available" << endl;
+    for (int i = 0; i < bookCount; i++) {
+        cout << left << setw(numberWidth) << i + 1
+            << left << setw(nameWidth) << listBook[i].getBookName()
+            << left << setw(idWidth) << listBook[i].getBookId()
+            << left << setw(availableWidth) << to_string(listBook[i].getAvailable()) 
+            + '/' + to_string(listBook[i].getAmount()) << endl;
+    }
+
+    string inputStr;
+    int index;
+
+    //choose title's index
+    while (true) {
+        cout << "Input title's no. to be removed\n>> ";
+        getline(cin, inputStr);
+        try {
+            index = stoi(inputStr);
+            if (index < 1 || index > bookCount) {
+                cout << "Wrong integer\n";
+                continue;
+            }
+            index--;
+            break;
+        } catch (const invalid_argument& err) {
+            cout << "You should enter an integer\n";
+        }
+    }
+
+    //confimation
+    int width = 20;
+    cout << "Book selected:\n";
+    cout << setw(width) << "Name"           << ": " << listBook[index].getBookName() << endl;
+    cout << setw(width) << "Id"             << ": " << listBook[index].getBookId() << endl;
+    cout << setw(width) << "Required Age"   << ": " << to_string(listBook[index].getRequiredAge()) + " years old"<< endl;
+    if (listBook[index].getAvailable() < listBook[index].getAmount()) {
+        cout << "Not all book is available, removing isn't allowed\n";
+        return;
+    }
+
+    cout << "Confirm delete?\n>> ";
+    string confirmationStr;
+    do {
+        cout << "Sure to remove this book?(y/n)\n";
+        getline(cin, confirmationStr);
+        confirmationStr = toLower(confirmationStr);
+    } while (confirmationStr.size() != 1 ||
+            (confirmationStr[0] != 'y' && confirmationStr[0] != 'n'));
+    if (confirmationStr[0] == 'y') {
+        bookCount--;
+        ofstream bookFileOut;
+        bookFileOut.open("Files/BookData.txt", ios::out);
+        bookFileOut << bookCount << endl;
+        for (int i = 0; i < bookCount + 1; i++) {
+            if (i != index) {
+                write(bookFileOut, listBook[i]);
+            }
+        }
+        bookFileOut.close();
+    } else {
+        return;
+    }
+
+    //Delete listBook and re read it
+    delete[] listBook;
+    ifstream bookFileIn;
+    bookFileIn.open("Files/BookData.txt");
+    readingBookData(bookFileIn);
+    bookFileIn.close();
+}
 
 void addMember() {
     string Name, Address, Telephone, Id, Age;
@@ -578,7 +669,7 @@ void addMember() {
 
     cout << "Enter member's address: ";
     getline(cin, Address);
-    
+
     while (true) {
         cout << "Enter member's phone number: ";
         getline(cin, Telephone);
@@ -604,28 +695,28 @@ void addMember() {
     }
 
     Member newMember(bookName, bookId, requiredAge, Name,
-                    Address, Telephone, Id, stoi(Age));
+            Address, Telephone, Id, stoi(Age));
 
     string repeatStr;
-        do {
-            cout << "Are you sure to input this data? (y/n)\n";
-            getline(cin, repeatStr);
-            repeatStr = toLower(repeatStr);
-        } while (repeatStr.size() != 1 ||
-                (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
-        if (repeatStr[0] == 'y') {
-            memberCount++;
-            ofstream memberFileOut;
-            memberFileOut.open("Files/Member.txt", ios::out);
-            memberFileOut << memberCount << endl;
-            for (int i = 0; i < memberCount - 1; i++) {
-                writeMember(memberFileOut, listMember[i]);
-            }
-            writeMember(memberFileOut, newMember);
-            memberFileOut.close();
-        } else {
-            return;
+    do {
+        cout << "Are you sure to input this data? (y/n)\n";
+        getline(cin, repeatStr);
+        repeatStr = toLower(repeatStr);
+    } while (repeatStr.size() != 1 ||
+            (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
+    if (repeatStr[0] == 'y') {
+        memberCount++;
+        ofstream memberFileOut;
+        memberFileOut.open("Files/Member.txt", ios::out);
+        memberFileOut << memberCount << endl;
+        for (int i = 0; i < memberCount - 1; i++) {
+            write(memberFileOut, listMember[i]);
         }
+        write(memberFileOut, newMember);
+        memberFileOut.close();
+    } else {
+        return;
+    }
 }
 
 void addEmployee() {
@@ -641,29 +732,37 @@ void addEmployee() {
     cout << "Name: " << newEmployee.getNameEmployee() << endl;
     cout << "Id: " << newEmployee.getIdEmployee() << endl;
     string repeatStr;
-        do {
-            cout << "Sure to Input This Employee's Data?(y/n)\n";
-            getline(cin, repeatStr);
-            repeatStr = toLower(repeatStr);
-        } while (repeatStr.size() != 1 ||
-                (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
-            if (repeatStr[0] == 'y') {
-                employeeCount++;
-                ofstream employeeFileOut;
-                employeeFileOut.open("Files/Employee.txt", ios::out);
-                employeeFileOut << employeeCount << endl;
-                for (int i = 0; i < employeeCount - 1; i++) {
-                    writeEmployee(employeeFileOut, listEmployee[i]);
-                }
-                writeEmployee(employeeFileOut, newEmployee);
-                employeeFileOut.close();;
-        } else {
-            return;
+    do {
+        cout << "Sure to Input This Employee's Data?(y/n)\n";
+        getline(cin, repeatStr);
+        repeatStr = toLower(repeatStr);
+    } while (repeatStr.size() != 1 ||
+            (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
+    if (repeatStr[0] == 'y') {
+        employeeCount++;
+        ofstream employeeFileOut;
+        employeeFileOut.open("Files/Employee.txt", ios::out);
+        employeeFileOut << employeeCount << endl;
+        for (int i = 0; i < employeeCount - 1; i++) {
+            write(employeeFileOut, listEmployee[i]);
         }
+        write(employeeFileOut, newEmployee);
+        employeeFileOut.close();;
+    } else {
+        return;
+    }
 }
 
 int main() {
     gatherData();
+    string repeatStr;
+    do {
+        removeTitle();
+        cout << "Finished doing remove book(y/n)?\n>> ";
+        getline(cin, repeatStr);
+        repeatStr = toLower(repeatStr);
+    } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
+    return 0;
     //login();
     int menuChosen = userChooseMenu();
 
@@ -672,22 +771,30 @@ int main() {
             {
                 string repeatStr;
                 do {
-                  borrowBook();
-                  cout << "Finished doing borrow book(y/n)?\n>> ";
-                  getline(cin, repeatStr);
-                  repeatStr = toLower(repeatStr);
+                    borrowBook();
+                    cout << "Finished doing borrow book(y/n)?\n>> ";
+                    getline(cin, repeatStr);
+                    repeatStr = toLower(repeatStr);
                 } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
             }
             break;
         case 2:
-            cout << "Chosen 2\n";
+            {
+                string repeatStr;
+                do {
+                    returnBook();
+                    cout << "Finished doing return book(y/n)?\n>> ";
+                    getline(cin, repeatStr);
+                    repeatStr = toLower(repeatStr);
+                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
+            }
             break;
         case 3:
             {
-            ifstream file;
-            file.open("Files/History.txt", ios::in);
+                ifstream file;
+                file.open("Files/History.txt", ios::in);
                 showHistory(file);
-            file.close();
+                file.close();
             }
             break;
         case 4:

@@ -36,6 +36,7 @@
     }
 
     void Member::returnBook(){
-        bookId.clear();
-        bookName.clear();
+        bookId = "-";
+        bookName = "-";
+        requiredAge = -1;
     }
