@@ -435,6 +435,16 @@ void borrowBook() {
     } while (true);
 }
 
+void showHistory(ifstream& file) {
+    string input;
+
+    while(!file.eof())
+    {
+        getline(file, input);
+        cout << input;
+    }
+}
+
 void libraryManagement();
 
 void addTitle() {
@@ -537,7 +547,12 @@ int main() {
             cout << "Chosen 2\n";
             break;
         case 3:
-            cout << "Chosen 3\n";
+            {
+            ifstream file;
+            file.open("Files/History.txt", ios::in);
+                showHistory(file);
+            file.close();
+            }
             break;
         case 4:
             {
