@@ -19,6 +19,7 @@ int bookCount;
 int memberCount;
 
 int lastKnownBookDataId;
+int lastKnownMemberId;
 int lastKnownEmployeeId;
 
 void writeBookData(ostream& stream, const BookData& data) {
@@ -244,6 +245,18 @@ string createBookDataId() {
     return stream.str();
 }
 
+
+string createMemberId(){
+    string lastId = listMember[memberCount-1].getId();
+    lastId = lastId.substr(2);
+    lastKnownMemberId = stoi(lastId);
+    lastKnownMemberId++;
+
+    stringstream stream;
+    stream << "M-" << setfill('0') << setw(4) << to_string(lastKnownMemberId);
+    return stream.str();
+}
+
 string createIdEmployee() {
     string employeeLastId = listEmployee[employeeCount-1].getIdEmployee();
     employeeLastId = employeeLastId.substr(1);
@@ -373,20 +386,20 @@ void stockManagement() {
 
 void borrowBook() {
     string memberId, bookName;
-    Member *ptr1 = nullptr;
-    BookData *ptr2 = nullptr;
+    Member *ptrMember = nullptr;
+    BookData *ptrBookData = nullptr;
 
     // check member's id
     cout << "Input Member's Id: ";
     getline(cin, memberId);
-    ptr1 = searchMember(memberId);
-    if (ptr1 == nullptr) {
+    ptrMember = searchMember(memberId);
+    if (ptrMember == nullptr) {
         cout << "No member found with the id of " << memberId << ".\n";
         return;
     }
 
     // check if member haven't return book
-    if (MemberHasBook(*ptr1) == true) {
+    if (MemberHasBook(*ptrMember) == true) {
         cout << "Member still have a book. Please return it first\n";
         return;
     }
@@ -395,19 +408,19 @@ void borrowBook() {
     do {
         cout << "Input Book's Name: ";
         getline(cin, bookName);
-        ptr2 = searchBook(bookName);
-        if (ptr2 != nullptr) {
-            cout << "Book " << ptr2->getBookName() << " found.\n";
-            if (ptr1->getAge() < ptr2->getRequiredAge()) {
+        ptrBookData = searchBook(bookName);
+        if (ptrBookData != nullptr) {
+            cout << "Book " << ptrBookData->getBookName() << " found.\n";
+            if (ptrMember->getAge() < ptrBookData->getRequiredAge()) {
                 cout << "Your age is not sufficient for this book\n";
             } else {
                 // check if book is available
                 ofstream historyFile;
                 historyFile.open("Files/History.txt", ios::app);
                 try {
-                    ptr2->borrowBook(historyFile, ptr1->getName());
-                    ptr1->borrowBook(ptr2->getBookName(), ptr2->getBookId(),
-                            ptr2->getRequiredAge());
+                    ptrBookData->borrowBook(historyFile, ptrMember->getName());
+                    ptrMember->borrowBook(ptrBookData->getBookName(), ptrBookData->getBookId(),
+                            ptrBookData->getRequiredAge());
                     cout << "Book borrowed\n";
                     historyFile.close();
                     return;
@@ -432,6 +445,46 @@ void borrowBook() {
             continue;
         } else {
             return;
+        }
+    } while (true);
+}
+
+
+void returnBook() {
+    string memberId, bookName;
+    Member *ptrMember = nullptr;
+    BookData *ptrBookData = nullptr;
+
+    // check member's id
+    cout << "Input Member's Id: ";
+    getline(cin, memberId);
+    ptrMember = searchMember(memberId);
+
+    if (ptrMember == nullptr) {
+        cout << "No member found with the id of " << memberId << ".\n";
+        return;
+    }
+
+    // check if member already return book
+    if (MemberHasBook(*ptrMember) == false) {
+        cout << "Member already return the book.\n";
+        return;
+    }
+
+    // check if the book's title is found
+    do {
+        ptrBookData = searchBook(ptrMember->getBookName());
+        if (ptrBookData != nullptr) {
+            cout << "Book " << ptrBookData->getBookName() << " found.\n";
+            ofstream historyFile;
+            historyFile.open("Files/History.txt", ios::app);
+            ptrBookData->returnBook(historyFile, ptrMember->getName());
+            ptrMember->returnBook();
+            cout << "Book returned\n";
+            historyFile.close();
+            writeData();
+        } else {
+            cout << "No book found.\n";
         }
     } while (true);
 }
@@ -513,6 +566,66 @@ void addTitle() {
     } else {
         return;
     }
+}
+
+
+void addMember() {
+    string Name, Address, Telephone, Id, Age;
+    string bookName{"-"}, bookId{"-"};
+    int requiredAge{-1};
+    cout << "Enter member's name: ";
+    getline(cin, Name);
+
+    cout << "Enter member's address: ";
+    getline(cin, Address);
+    
+    while (true) {
+        cout << "Enter member's phone number: ";
+        getline(cin, Telephone);
+        try {
+            stoi(Telephone);
+            break;
+        } catch (const invalid_argument& err) {
+            cout << "Not an integer\n";
+        }
+    }
+
+    Id = createMemberId();
+
+    while (true) {
+        cout << "Enter member's age: ";
+        getline(cin, Age);
+        try {
+            stoi(Age);
+            break;
+        } catch (const invalid_argument& err) {
+            cout << "Not an integer\n";
+        }
+    }
+
+    Member newMember(bookName, bookId, requiredAge, Name,
+                    Address, Telephone, Id, stoi(Age));
+
+    string repeatStr;
+        do {
+            cout << "Are you sure to input this data? (y/n)\n";
+            getline(cin, repeatStr);
+            repeatStr = toLower(repeatStr);
+        } while (repeatStr.size() != 1 ||
+                (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
+        if (repeatStr[0] == 'y') {
+            memberCount++;
+            ofstream memberFileOut;
+            memberFileOut.open("Files/Member.txt", ios::out);
+            memberFileOut << memberCount << endl;
+            for (int i = 0; i < memberCount - 1; i++) {
+                writeMember(memberFileOut, listMember[i]);
+            }
+            writeMember(memberFileOut, newMember);
+            memberFileOut.close();
+        } else {
+            return;
+        }
 }
 
 void addEmployee() {
