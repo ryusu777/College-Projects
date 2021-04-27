@@ -160,18 +160,6 @@ void writeList(ostream& output, Employee* list) {
     }
 }
 
-void writeList(ostream& output, BookData* list) {
-    for (int i = 0; i < bookCount; i++) {
-        write(output, list[i]);
-    }
-}
-
-void writeList(ostream& output, Member* list) {
-    for (int i = 0; i < memberCount; i++) {
-        write(output, list[i]);
-    }
-}
-
 void writeData() {
     //TODO: Separate each read into functions
     ofstream bookFileOut;
