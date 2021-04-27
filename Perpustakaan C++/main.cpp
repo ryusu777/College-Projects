@@ -105,6 +105,14 @@ void readingBookData(ifstream& bookFileIn) {
     }
 }
 
+void readingEmployeeData(ifstream& employeeFileIn) {
+    employeeFileIn >> employeeCount; employeeFileIn.get();
+    listEmployee = new Employee[employeeCount];
+    for (int i = 0; i < employeeCount; i++) {
+        listEmployee[i] = readEmployee(employeeFileIn);
+    }
+}
+
 void readingMember(ifstream& memberFileIn){
     memberFileIn.open("Files/Member.txt");
     memberFileIn >> memberCount; memberFileIn.get();
@@ -123,18 +131,33 @@ void gatherData() {
 
     //MemberData reading
     ifstream memberFileIn;
+    memberFileIn.open("Files/Member.txt");
     readingMember(memberFileIn);
     memberFileIn.close();
 
     ////EmployeeData reading
     ifstream employeeFileIn;
     employeeFileIn.open("Files/Employee.txt", ios::in);
-    employeeFileIn >> employeeCount; employeeFileIn.get();
-    listEmployee = new Employee[employeeCount];
-    for (int i = 0; i < employeeCount; i++) {
-        listEmployee[i] = readEmployee(employeeFileIn);
-    }
+    readingEmployeeData(employeeFileIn);
     employeeFileIn.close();
+}
+
+void writeList(ostream& output, BookData* list) {
+    for (int i = 0; i < bookCount; i++) {
+        write(output, list[i]);
+    }
+}
+
+void writeList(ostream& output, Member* list) {
+    for (int i = 0; i < memberCount; i++) {
+        write(output, list[i]);
+    }
+}
+
+void writeList(ostream& output, Employee* list) {
+    for (int i = 0; i < employeeCount; i++) {
+        write(output, listEmployee[i]);
+    }
 }
 
 void writeList(ostream& output, BookData* list) {
@@ -166,9 +189,7 @@ void writeData() {
     ofstream employeeFileOut;
     employeeFileOut.open("Files/Employee.txt", ios::out);
     employeeFileOut << employeeCount << endl;
-    for (int i = 0; i < employeeCount; i++) {
-        write(employeeFileOut, listEmployee[i]);
-    }
+    writeList(employeeFileOut, listEmployee);
     employeeFileOut.close();
 }
 
@@ -845,6 +866,76 @@ void addEmployee() {
     } else {
         return;
     }
+}
+
+void removeEmployee() {
+    cout << "Welcome\n";
+    int nameWidth = 25, numberWidth = 5, idWidth = 10, availableWidth = 15;
+    cout << left << setw(numberWidth) << "No."
+         << left << setw(nameWidth) << "Name"
+         << left << setw(idWidth) << "Id";
+    for (int i = 0; i < bookCount; i++) {
+        cout << left << setw(numberWidth) << i + 1
+             << left << setw(nameWidth) << listEmployee[i].getNameEmployee()
+             << left << setw(idWidth) << listEmployee[i].getIdEmployee()
+             + '/' + to_string(listBook[i].getAmount()) << endl;
+    }
+
+    string inputStr;
+    int index;
+
+    //choose Employee's index
+    while (true) {
+        cout << "Input Employee's no. to be removed\n>> ";
+        getline(cin, inputStr);
+        try {
+            index = stoi(inputStr);
+            if (index < 1 || index > employeeCount) {
+                cout << "Wrong integer\n";
+                continue;
+            }
+            index--;
+            break;
+        } catch (const invalid_argument& err) {
+            cout << "You should enter an integer\n";
+        }
+    }
+
+    //confimation
+    int width = 20;
+    cout << "Employee selected:\n";
+    cout << setw(width) << "Name"           << ": " << listEmployee[index].getNameEmployee() << endl;
+    cout << setw(width) << "Id"             << ": " << listEmployee[index].getIdEmployee() << endl;
+    
+    cout << "Confirm delete?\n>> ";
+    string confirmationStr;
+    do {
+        cout << "Sure to remove this employee?(y/n)\n";
+        getline(cin, confirmationStr);
+        confirmationStr = toLower(confirmationStr);
+    } while (confirmationStr.size() != 1 ||
+            (confirmationStr[0] != 'y' && confirmationStr[0] != 'n'));
+    if (confirmationStr[0] == 'y') {
+        employeeCount--;
+        ofstream employeeFileOut;
+        employeeFileOut.open("Files/Employee.txt", ios::out);
+        employeeFileOut << employeeCount << endl;
+        for (int i = 0; i < employeeCount + 1; i++) {
+            if (i != index) {
+                write(employeeFileOut, listEmployee[i]);
+            }
+        }
+        employeeFileOut.close();
+    } else {
+        return;
+    }
+
+    //Delete listBook and re read it
+    delete[] listEmployee;
+    ifstream employeeFileIn;
+    employeeFileIn.open("Files/Employee.txt");
+    readingEmployeeData(employeeFileIn);
+    employeeFileIn.close();
 }
 
 void libraryManagement() {
