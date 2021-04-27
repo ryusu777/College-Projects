@@ -105,6 +105,15 @@ void readingBookData(ifstream& bookFileIn) {
     }
 }
 
+void readingMember(ifstream& memberFileIn){
+    memberFileIn.open("Files/Member.txt");
+    memberFileIn >> memberCount; memberFileIn.get();
+    listMember = new Member[memberCount];
+    for (int i = 0; i < memberCount; i++) {
+        listMember[i] = readMember(memberFileIn);
+    }
+}
+
 void gatherData() {
     //BookData reading
     ifstream bookFileIn;
@@ -114,13 +123,9 @@ void gatherData() {
 
     //MemberData reading
     ifstream memberFileIn;
-    memberFileIn.open("Files/Member.txt");
-    memberFileIn >> memberCount; memberFileIn.get();
-    listMember = new Member[memberCount];
-    for (int i = 0; i < memberCount; i++) {
-        listMember[i] = readMember(memberFileIn);
-    }
+    readingMember(memberFileIn);
     memberFileIn.close();
+
     ////EmployeeData reading
     ifstream employeeFileIn;
     employeeFileIn.open("Files/Employee.txt", ios::in);
@@ -155,11 +160,9 @@ void writeData() {
     ofstream memberFileOut;
     memberFileOut.open("Files/Member.txt", ios::out);
     memberFileOut << memberCount << endl;
-    for (int i= 0; i < memberCount; i++) {
-        write(memberFileOut, listMember[i]);
-    }
+    writeList(memberFileOut, listMember);
     memberFileOut.close();
-
+  
     ofstream employeeFileOut;
     employeeFileOut.open("Files/Employee.txt", ios::out);
     employeeFileOut << employeeCount << endl;
@@ -727,6 +730,87 @@ void addMember() {
     } else {
         return;
     }
+}
+
+void removeMember(){
+    cout << "Welcome\n";
+    int memberNameWidth = 25, numberWidth = 5, memberIdWidth = 10, memberAddressWidth = 15, memberTelpWidth= 15, memberAgeWidth = 5;
+    cout << left << setw(numberWidth) << "No."
+        << left << setw(memberNameWidth) << "Name"
+        << left << setw(memberIdWidth) << "Member Id"
+        << left << setw(memberAddressWidth) << "Address"
+        << left << setw(memberTelpWidth) << "Telp"
+        << left << setw(memberAgeWidth) << "Age" << endl;
+    for (int i = 0; i < memberCount; i++) {
+        cout << left << setw(numberWidth) << i + 1
+            << left << setw(memberNameWidth) << listMember[i].getName()
+            << left << setw(memberIdWidth) << listMember[i].getId()
+            << left << setw(memberAddressWidth) << listMember[i].getAddress()
+            << left << setw(memberTelpWidth) << listMember[i].getTelephone()
+            << left << setw(memberAgeWidth) << to_string(listMember[i].getAge())  << endl;
+    }
+    string inputStr;
+    int index;
+
+    //choose member's index
+    while (true) {
+        cout << "Input member's no. to be removed\n>> ";
+        getline(cin, inputStr);
+        try {
+            index = stoi(inputStr);
+            if (index < 1 || index > memberCount) {
+                cout << "Wrong integer\n";
+                continue;
+            }
+            index--;
+            break;
+        } catch (const invalid_argument& err) {
+            cout << "You should enter an integer\n";
+        }
+    }
+
+    //confimation
+    int width = 20;
+    cout << "Member selected:\n";
+    cout << setw(width) << "Name"       << ": " << listMember[index].getName() << endl;
+    cout << setw(width) << "Id"         << ": " << listMember[index].getId() << endl;
+    cout << setw(width) << "Address"    << ": " << listMember[index].getAddress() << endl;
+    cout << setw(width) << "Telephone"  << ": " << listMember[index].getTelephone() << endl;
+    cout << setw(width) << "Age"        << ": " << to_string(listMember[index].getAge()) + " years old"<< endl;
+    if (listMember[index].getBookName() != "-") {
+        cout << "Member hasn't returned book, removing isn't allowed\n";
+        return;
+    }
+
+    cout << "Confirm delete?\n>> ";
+    string confirmationStr;
+    do {
+        cout << "Sure to remove this member?(y/n)\n";
+        getline(cin, confirmationStr);
+        confirmationStr = toLower(confirmationStr);
+    } while (confirmationStr.size() != 1 ||
+            (confirmationStr[0] != 'y' && confirmationStr[0] != 'n'));
+    if (confirmationStr[0] == 'y') {
+        memberCount--;
+        ofstream memberFileOut;
+        memberFileOut.open("Files/Member.txt", ios::out);
+        memberFileOut << memberCount << endl;
+        for (int i = 0; i < memberCount + 1; i++) {
+            if (i != index) {
+                write(memberFileOut, listMember[i]);
+            }
+        }
+        memberFileOut.close();
+    } else {
+        return;
+    }
+
+    //Delete list member and re read it
+    delete[] listMember;
+    ifstream memberFileIn;
+    memberFileIn.open("Files/Member.txt");
+    readingMember(memberFileIn);
+    memberFileIn.close();
 }
 
 void addEmployee() {

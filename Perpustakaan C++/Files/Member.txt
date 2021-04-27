@@ -7,17 +7,17 @@ Jakarta Timur
 081123456789
 M-0001
 23
-Deitel C++
-MU0003
-13
+-
+-
+-1
 Azizah
 Bekasi
 081987654321
 M-0003
 18
-Biology Of Belief
-MU0001
-13
+-
+-
+-1
 Larissa
 Tangerang
 081155665443
