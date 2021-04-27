@@ -113,6 +113,15 @@ void readingEmployeeData(ifstream& employeeFileIn) {
     }
 }
 
+void readingMember(ifstream& memberFileIn){
+    memberFileIn.open("Files/Member.txt");
+    memberFileIn >> memberCount; memberFileIn.get();
+    listMember = new Member[memberCount];
+    for (int i = 0; i < memberCount; i++) {
+        listMember[i] = readMember(memberFileIn);
+    }
+}
+
 void gatherData() {
     //BookData reading
     ifstream bookFileIn;
@@ -123,11 +132,7 @@ void gatherData() {
     //MemberData reading
     ifstream memberFileIn;
     memberFileIn.open("Files/Member.txt");
-    memberFileIn >> memberCount; memberFileIn.get();
-    listMember = new Member[memberCount];
-    for (int i = 0; i < memberCount; i++) {
-        listMember[i] = readMember(memberFileIn);
-    }
+    readingMember(memberFileIn);
     memberFileIn.close();
 
     ////EmployeeData reading
@@ -155,6 +160,18 @@ void writeList(ostream& output, Employee* list) {
     }
 }
 
+void writeList(ostream& output, BookData* list) {
+    for (int i = 0; i < bookCount; i++) {
+        write(output, list[i]);
+    }
+}
+
+void writeList(ostream& output, Member* list) {
+    for (int i = 0; i < memberCount; i++) {
+        write(output, list[i]);
+    }
+}
+
 void writeData() {
     //TODO: Separate each read into functions
     ofstream bookFileOut;
@@ -166,11 +183,9 @@ void writeData() {
     ofstream memberFileOut;
     memberFileOut.open("Files/Member.txt", ios::out);
     memberFileOut << memberCount << endl;
-    for (int i= 0; i < memberCount; i++) {
-        write(memberFileOut, listMember[i]);
-    }
+    writeList(memberFileOut, listMember);
     memberFileOut.close();
-
+  
     ofstream employeeFileOut;
     employeeFileOut.open("Files/Employee.txt", ios::out);
     employeeFileOut << employeeCount << endl;
@@ -205,7 +220,7 @@ bool MemberHasBook(const Member& input) {
 }
 
 void login() {
-    string id;
+    string id, password;
     Employee *ptr = nullptr;
 
     do {
@@ -217,6 +232,16 @@ void login() {
         }
     } while (ptr == nullptr);
 
+    cout << "Welcome " << ptr->getNameEmployee() << endl;
+    cout << "Input your password(0 to exit)\n>> ";
+    getline(cin, password);
+    while (!ptr->login(password) &&
+            !(password.size() == 1 && password[0] == '0')) {
+        cout << "Wrong password\n>> ";
+        getline(cin, password);
+    }
+    if (password[0] == '0')
+        return;
     currentLibrarian = ptr;
 }
 
@@ -229,14 +254,28 @@ void showMenu() {
     cout << "4. Stock management\n";
     cout << "5. Change password\n";
     cout << "6. Add Title\n";
+    cout << "7. Exit\n";
 }
 
-int userChooseMenu() {
-    showMenu();
-    string inputStr;
-    int input = -1, numOfMenu = 6;
+void showBookData() {
+    int nameWidth = 25, numberWidth = 5, idWidth = 10, availableWidth = 15;
+    cout << left << setw(numberWidth) << "No."
+        << left << setw(nameWidth) << "Title"
+        << left << setw(idWidth) << "Id"
+        << left << setw(availableWidth) << "Available" << endl;
+    for (int i = 0; i < bookCount; i++) {
+        cout << left << setw(numberWidth) << i + 1
+            << left << setw(nameWidth) << listBook[i].getBookName()
+            << left << setw(idWidth) << listBook[i].getBookId()
+            << left << setw(availableWidth) << to_string(listBook[i].getAvailable()) 
+            + '/' + to_string(listBook[i].getAmount()) << endl;
+    }
+}
 
-    //TODO: dynamic according to number of menu
+int userChooseMenu(int numOfMenu) {
+    string inputStr;
+    int input = -1;
+
     while (input < 1 || input > numOfMenu) {
         cout << ">> ";
         getline(cin, inputStr);
@@ -257,10 +296,6 @@ void changePassword(Employee& currentLibrarian) {
 }
 
 string createBookDataId() {
-    //string lastId = listBook[bookCount - 1].getBookId();
-    //lastId = lastId.substr(2);
-    //lastKnownBookDataId = stoi(lastId);
-
     lastKnownBookDataId = stoi(listBook[bookCount - 1].getBookId().substr(2));
 
     lastKnownBookDataId++;
@@ -303,12 +338,13 @@ BookData* searchBook(const string& input) {
 
 void stockManagement() {
     string password;
-    cout << "Input your password(0 to exit)\n>> ";
+    cout << "Input your password\n>> ";
     getline(cin, password);
-    //while (!currentLibrarian->login(password) && password[0] != '0') {
-    //cout << "Wrong password (0 to exit)\n>> ";
-    //getline(cin, password);
-    //}
+    while (!currentLibrarian->login(password) &&
+            !(password.size() == 1 && password[0] == '0')) {
+        cout << "Wrong password\n>> ";
+        getline(cin, password);
+    }
 
     if (password[0] == '0') {
         return;
@@ -318,6 +354,7 @@ void stockManagement() {
     string inputBook;
 
     cout << "Welcome " << currentLibrarian->getNameEmployee() << ".\n";
+    showBookData();
     cout << "Input a book's ID or Name:\n";
 
     cout << ">> ";
@@ -521,10 +558,6 @@ void showHistory(ifstream& file) {
     }
 }
 
-void libraryManagement() {
-    cout << "Hello world\n";
-}
-
 void addTitle() {
     string bookName, bookId, requiredAge, amount, available;
 
@@ -594,29 +627,21 @@ void addTitle() {
 
 void removeTitle() {
     cout << "Welcome\n";
-    int nameWidth = 25, numberWidth = 5, idWidth = 10, availableWidth = 15;
-    cout << left << setw(numberWidth) << "No."
-        << left << setw(nameWidth) << "Title"
-        << left << setw(idWidth) << "Id"
-        << left << setw(availableWidth) << "Available" << endl;
-    for (int i = 0; i < bookCount; i++) {
-        cout << left << setw(numberWidth) << i + 1
-            << left << setw(nameWidth) << listBook[i].getBookName()
-            << left << setw(idWidth) << listBook[i].getBookId()
-            << left << setw(availableWidth) << to_string(listBook[i].getAvailable()) 
-            + '/' + to_string(listBook[i].getAmount()) << endl;
-    }
+    showBookData();
 
     string inputStr;
     int index;
 
     //choose title's index
     while (true) {
-        cout << "Input title's no. to be removed\n>> ";
+        cout << "Input title's no. to be removed(0 to exit)\n>> ";
         getline(cin, inputStr);
         try {
             index = stoi(inputStr);
             if (index < 1 || index > bookCount) {
+                if (index == 0) {
+                    return;
+                }
                 cout << "Wrong integer\n";
                 continue;
             }
@@ -728,6 +753,87 @@ void addMember() {
     }
 }
 
+void removeMember(){
+    cout << "Welcome\n";
+    int memberNameWidth = 25, numberWidth = 5, memberIdWidth = 10, memberAddressWidth = 15, memberTelpWidth= 15, memberAgeWidth = 5;
+    cout << left << setw(numberWidth) << "No."
+        << left << setw(memberNameWidth) << "Name"
+        << left << setw(memberIdWidth) << "Member Id"
+        << left << setw(memberAddressWidth) << "Address"
+        << left << setw(memberTelpWidth) << "Telp"
+        << left << setw(memberAgeWidth) << "Age" << endl;
+    for (int i = 0; i < memberCount; i++) {
+        cout << left << setw(numberWidth) << i + 1
+            << left << setw(memberNameWidth) << listMember[i].getName()
+            << left << setw(memberIdWidth) << listMember[i].getId()
+            << left << setw(memberAddressWidth) << listMember[i].getAddress()
+            << left << setw(memberTelpWidth) << listMember[i].getTelephone()
+            << left << setw(memberAgeWidth) << to_string(listMember[i].getAge())  << endl;
+    }
+    string inputStr;
+    int index;
+
+    //choose member's index
+    while (true) {
+        cout << "Input member's no. to be removed\n>> ";
+        getline(cin, inputStr);
+        try {
+            index = stoi(inputStr);
+            if (index < 1 || index > memberCount) {
+                cout << "Wrong integer\n";
+                continue;
+            }
+            index--;
+            break;
+        } catch (const invalid_argument& err) {
+            cout << "You should enter an integer\n";
+        }
+    }
+
+    //confimation
+    int width = 20;
+    cout << "Member selected:\n";
+    cout << setw(width) << "Name"       << ": " << listMember[index].getName() << endl;
+    cout << setw(width) << "Id"         << ": " << listMember[index].getId() << endl;
+    cout << setw(width) << "Address"    << ": " << listMember[index].getAddress() << endl;
+    cout << setw(width) << "Telephone"  << ": " << listMember[index].getTelephone() << endl;
+    cout << setw(width) << "Age"        << ": " << to_string(listMember[index].getAge()) + " years old"<< endl;
+    if (listMember[index].getBookName() != "-") {
+        cout << "Member hasn't returned book, removing isn't allowed\n";
+        return;
+    }
+
+    cout << "Confirm delete?\n>> ";
+    string confirmationStr;
+    do {
+        cout << "Sure to remove this member?(y/n)\n";
+        getline(cin, confirmationStr);
+        confirmationStr = toLower(confirmationStr);
+    } while (confirmationStr.size() != 1 ||
+            (confirmationStr[0] != 'y' && confirmationStr[0] != 'n'));
+    if (confirmationStr[0] == 'y') {
+        memberCount--;
+        ofstream memberFileOut;
+        memberFileOut.open("Files/Member.txt", ios::out);
+        memberFileOut << memberCount << endl;
+        for (int i = 0; i < memberCount + 1; i++) {
+            if (i != index) {
+                write(memberFileOut, listMember[i]);
+            }
+        }
+        memberFileOut.close();
+    } else {
+        return;
+    }
+
+    //Delete list member and re read it
+    delete[] listMember;
+    ifstream memberFileIn;
+    memberFileIn.open("Files/Member.txt");
+    readingMember(memberFileIn);
+    memberFileIn.close();
+}
+
 void addEmployee() {
     string nameEmployee, idEmployee, password;
     cout << "Input Employee's Name: ";
@@ -830,21 +936,95 @@ void removeEmployee() {
     employeeFileIn.open("Files/Employee.txt");
     readingEmployeeData(employeeFileIn);
     employeeFileIn.close();
+}
 
+void libraryManagement() {
+    cout << "Welcome to library management.\n";
+    cout << "1. Add title.\n"
+         << "2. Remove title.\n"
+         << "3. Add Member.\n"
+         << "4. Remove Member.\n"
+         << "5. Add Employee.\n"
+         << "6. Remove Employee.\n"
+         << "7. Exit.\n";
+    int chosen = userChooseMenu(7);
+    switch (chosen) {
+        case 1:
+            {
+                string repeatStr;
+                do {
+                    addTitle();
+                    cout << "Finished adding title(y/n)?\n>> ";
+                    getline(cin, repeatStr);
+                    repeatStr = toLower(repeatStr);
+                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
+            }
+            break;
+        case 2:
+            {
+                string repeatStr;
+                do {
+                    removeTitle();
+                    cout << "Finished removing title(y/n)?\n>> ";
+                    getline(cin, repeatStr);
+                    repeatStr = toLower(repeatStr);
+                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
+            }
+            break;
+        case 3:
+            {
+                string repeatStr;
+                do {
+                    addMember();
+                    cout << "Finished adding member(y/n)?\n>> ";
+                    getline(cin, repeatStr);
+                    repeatStr = toLower(repeatStr);
+                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
+            }
+            break;
+        case 4:
+            {
+                string repeatStr;
+                do {
+                    //removeMember();
+                    cout << "Finished adding member(y/n)?\n>> ";
+                    getline(cin, repeatStr);
+                    repeatStr = toLower(repeatStr);
+                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
+            }
+            break;
+        case 5:
+            {
+                string repeatStr;
+                do {
+                    addEmployee();
+                    cout << "Finished adding employee(y/n)?\n>> ";
+                    getline(cin, repeatStr);
+                    repeatStr = toLower(repeatStr);
+                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
+            }
+            break;
+        case 6:
+            {
+                string repeatStr;
+                do {
+                    //removeEmployee();
+                    cout << "Finished removing employee(y/n)?\n>> ";
+                    getline(cin, repeatStr);
+                    repeatStr = toLower(repeatStr);
+                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
+            }
+            break;
+        default:
+            break;
+    }
 }
 
 int main() {
     gatherData();
-    string repeatStr;
-    do {
-        removeTitle();
-        cout << "Finished doing remove book(y/n)?\n>> ";
-        getline(cin, repeatStr);
-        repeatStr = toLower(repeatStr);
-    } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
-    return 0;
-    //login();
-    int menuChosen = userChooseMenu();
+    login();
+    showMenu();
+    int menuChosen = userChooseMenu(7);
 
     switch(menuChosen) {
         case 1:
