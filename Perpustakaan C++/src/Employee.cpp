@@ -1,4 +1,4 @@
-#include "Class/Employee.h"
+#include "../Class/Employee.h"
 
 Employee::Employee(std::string nameEmployee, std::string idEmployee, 
                    std::string password) : 
