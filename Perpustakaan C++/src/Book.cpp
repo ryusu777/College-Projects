@@ -1,4 +1,4 @@
-#include "Class/Book.h"
+#include "../Class/Book.h"
 
 Book::Book(std::string bookName, std::string bookId, int requiredAge) :
     bookName(bookName), bookId(bookId), requiredAge(requiredAge) {}
