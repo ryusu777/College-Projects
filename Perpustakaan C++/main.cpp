@@ -15,6 +15,8 @@
 //TODO: Input starts with >>
 //TODO: Tidy up prompt
 //TODO: Library management add should re-gather data
+//TODO: Add option if forgot password
+//TODO: Add details about each developer job.
 //Probably TODO: Make history as a table
 
 using namespace std;
@@ -26,10 +28,6 @@ Member *listMember;
 int employeeCount;
 int bookCount;
 int memberCount;
-
-int lastKnownBookDataId;
-int lastKnownMemberId;
-int lastKnownEmployeeId;
 
 void write(ostream& stream, const BookData& data) {
     stream << data.getBookName()    << endl
@@ -46,6 +44,30 @@ string toLower(string str) {
         }
     }
     return str;
+}
+
+template<typename T>
+void repeat(string message, T callback) {
+    string repeatStr;
+    do {
+        callback();
+        cout << message << endl << ">> ";
+        getline(cin, repeatStr);
+        repeatStr = toLower(repeatStr);
+    } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
+}
+
+bool repeat(string message) {
+    string repeatStr;
+    do {
+        cout << message << endl << ">> ";
+        getline(cin, repeatStr);
+        repeatStr = toLower(repeatStr);
+    } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
+    if (repeatStr[0] == 'y') {
+        return true;
+    }
+    return false;
 }
 
 BookData readBookData(istream& stream) {
@@ -292,7 +314,13 @@ void changePassword(Employee& currentLibrarian) {
 }
 
 string createBookDataId() {
-    lastKnownBookDataId = stoi(listBook[bookCount - 1].getBookId().substr(2));
+    int lastKnownBookDataId;
+    try {
+        lastKnownBookDataId = stoi(listBook[bookCount - 1].getBookId().substr(2));
+    } catch (const invalid_argument& err) {
+        cout << "Error converting BookData Id into integer\n";
+        exit(-1);
+    }
 
     lastKnownBookDataId++;
     stringstream stream;
@@ -302,8 +330,14 @@ string createBookDataId() {
 
 string createMemberId(){
     string lastId = listMember[memberCount-1].getId();
+    int lastKnownMemberId;
     lastId = lastId.substr(2);
-    lastKnownMemberId = stoi(lastId);
+    try {
+        lastKnownMemberId = stoi(lastId);
+    } catch (const invalid_argument& err) {
+        cout << "Error converting Member Id into integer\n";
+        exit(-1);
+    }
     lastKnownMemberId++;
 
     stringstream stream;
@@ -314,7 +348,13 @@ string createMemberId(){
 string createIdEmployee() {
     string employeeLastId = listEmployee[employeeCount-1].getIdEmployee();
     employeeLastId = employeeLastId.substr(1);
-    lastKnownEmployeeId = stoi(employeeLastId);
+    int lastKnownEmployeeId;
+    try {
+        lastKnownEmployeeId = stoi(employeeLastId);
+    } catch (const invalid_argument& err) {
+        cout << "Error converting Employee Id into integer\n";
+        exit(-1);
+    }
 
     lastKnownEmployeeId++;
     stringstream stream;
@@ -332,19 +372,6 @@ BookData* searchBook(const string& input) {
 }
 
 void stockManagement() {
-    string password;
-    cout << "Input your password\n>> ";
-    getline(cin, password);
-    while (!currentLibrarian->login(password) &&
-            !(password.size() == 1 && password[0] == '0')) {
-        cout << "Wrong password\n>> ";
-        getline(cin, password);
-    }
-
-    if (password[0] == '0') {
-        return;
-    }
-
     BookData* selectedBook = nullptr;
     string inputBook;
 
@@ -490,14 +517,7 @@ void borrowBook() {
             cout << "No book found.\n";
         }
 
-        string repeatStr;
-        do {
-            cout << "Retry input book?(y/n)\n";
-            getline(cin, repeatStr);
-            repeatStr = toLower(repeatStr);
-        } while (repeatStr.size() != 1 ||
-                (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
-        if (repeatStr[0] == 'y') {
+        if (repeat("Retry input book(y/n)?")) {
             continue;
         } else {
             return;
@@ -556,7 +576,6 @@ void showHistory(ifstream& file) {
 void addTitle() {
     string bookName, bookId, requiredAge, amount, available;
 
-    string repeat;
     cout << "Enter book's name: ";
     getline(cin, bookName);
     bookId = createBookDataId();
@@ -596,14 +615,7 @@ void addTitle() {
     cout << left << setw(width) << "Stock Available" << ": " << newBook.getAvailable() << endl;
     cout << endl;
 
-    string confirmationStr;
-    do {
-        cout << "Sure to add this book?(y/n)\n";
-        getline(cin, confirmationStr);
-        confirmationStr = toLower(confirmationStr);
-    } while (confirmationStr.size() != 1 ||
-            (confirmationStr[0] != 'y' && confirmationStr[0] != 'n'));
-    if (confirmationStr[0] == 'y') {
+    if (repeat("Sure to add this book(y/n)?")) {
         bookCount++;
         ofstream bookFileOut;
         bookFileOut.open("Files/BookData.txt", ios::out);
@@ -613,7 +625,6 @@ void addTitle() {
         }
         write(bookFileOut, newBook);
         bookFileOut.close();
-
     } else {
         return;
     }
@@ -657,15 +668,7 @@ void removeTitle() {
         return;
     }
 
-    cout << "Confirm delete?\n>> ";
-    string confirmationStr;
-    do {
-        cout << "Sure to remove this book?(y/n)\n";
-        getline(cin, confirmationStr);
-        confirmationStr = toLower(confirmationStr);
-    } while (confirmationStr.size() != 1 ||
-            (confirmationStr[0] != 'y' && confirmationStr[0] != 'n'));
-    if (confirmationStr[0] == 'y') {
+    if (repeat("Sure to remove this book(y/n)?")) {
         bookCount--;
         ofstream bookFileOut;
         bookFileOut.open("Files/BookData.txt", ios::out);
@@ -698,16 +701,8 @@ void addMember() {
     cout << "Enter member's address: ";
     getline(cin, Address);
 
-    //while (true) {
-        cout << "Enter member's phone number: ";
-        getline(cin, Telephone);
-        //try {
-            //stoi(Telephone);
-            //break;
-        //} catch (const invalid_argument& err) {
-            //cout << "Not an integer\n";
-        //}
-    //}
+    cout << "Enter member's phone number: ";
+    getline(cin, Telephone);
 
     Id = createMemberId();
 
@@ -726,14 +721,7 @@ void addMember() {
             Address, Telephone, Id, stoi(Age));
 
     //Vero TODO: Show member's data
-    string repeatStr;
-    do {
-        cout << "Are you sure to input this data? (y/n)\n";
-        getline(cin, repeatStr);
-        repeatStr = toLower(repeatStr);
-    } while (repeatStr.size() != 1 ||
-            (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
-    if (repeatStr[0] == 'y') {
+    if (repeat("Sure to input this data(y/n)?")) {
         memberCount++;
         ofstream memberFileOut;
         memberFileOut.open("Files/Member.txt", ios::out);
@@ -799,15 +787,7 @@ void removeMember(){
         return;
     }
 
-    cout << "Confirm delete?\n>> ";
-    string confirmationStr;
-    do {
-        cout << "Sure to remove this member?(y/n)\n";
-        getline(cin, confirmationStr);
-        confirmationStr = toLower(confirmationStr);
-    } while (confirmationStr.size() != 1 ||
-            (confirmationStr[0] != 'y' && confirmationStr[0] != 'n'));
-    if (confirmationStr[0] == 'y') {
+    if (repeat("Sure to remove this member(y/n)?")) {
         memberCount--;
         ofstream memberFileOut;
         memberFileOut.open("Files/Member.txt", ios::out);
@@ -842,14 +822,7 @@ void addEmployee() {
     cout << "Collected Data: "<< endl;
     cout << "Name: " << newEmployee.getNameEmployee() << endl;
     cout << "Id: " << newEmployee.getIdEmployee() << endl;
-    string repeatStr;
-    do {
-        cout << "Sure to Input This Employee's Data?(y/n)\n";
-        getline(cin, repeatStr);
-        repeatStr = toLower(repeatStr);
-    } while (repeatStr.size() != 1 ||
-            (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
-    if (repeatStr[0] == 'y') {
+    if (repeat("Sure to input this employee's data(y/n)?")) {
         employeeCount++;
         ofstream employeeFileOut;
         employeeFileOut.open("Files/Employee.txt", ios::out);
@@ -904,14 +877,7 @@ void removeEmployee() {
     cout << setw(width) << "Id"             << ": " << listEmployee[index].getIdEmployee() << endl;
     
     cout << "Confirm delete?\n>> ";
-    string confirmationStr;
-    do {
-        cout << "Sure to remove this employee?(y/n)\n";
-        getline(cin, confirmationStr);
-        confirmationStr = toLower(confirmationStr);
-    } while (confirmationStr.size() != 1 ||
-            (confirmationStr[0] != 'y' && confirmationStr[0] != 'n'));
-    if (confirmationStr[0] == 'y') {
+    if (repeat("Sure to remove this employee(y/n)?")) {
         employeeCount--;
         ofstream employeeFileOut;
         employeeFileOut.open("Files/Employee.txt", ios::out);
@@ -934,20 +900,8 @@ void removeEmployee() {
     employeeFileIn.close();
 }
 
+
 void libraryManagement() {
-    string password;
-    cout << "Input your password\n>> ";
-    getline(cin, password);
-    while (!currentLibrarian->login(password) &&
-            !(password.size() == 1 && password[0] == '0')) {
-        cout << "Wrong password(0 to exit)\n>> ";
-        getline(cin, password);
-    }
-
-    if (password[0] == '0') {
-        return;
-    }
-
     cout << "Welcome to library management.\n";
     cout << "1. Add title.\n"
          << "2. Remove title.\n"
@@ -959,70 +913,22 @@ void libraryManagement() {
     int chosen = userChooseMenu(7);
     switch (chosen) {
         case 1:
-            {
-                string repeatStr;
-                do {
-                    addTitle();
-                    cout << "Finished adding title(y/n)?\n>> ";
-                    getline(cin, repeatStr);
-                    repeatStr = toLower(repeatStr);
-                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
-            }
+            repeat("Finished adding title(y/n)?", addTitle);
             break;
         case 2:
-            {
-                string repeatStr;
-                do {
-                    removeTitle();
-                    cout << "Finished removing title(y/n)?\n>> ";
-                    getline(cin, repeatStr);
-                    repeatStr = toLower(repeatStr);
-                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
-            }
+            repeat("Finished removing title(y/n)?", removeTitle);
             break;
         case 3:
-            {
-                string repeatStr;
-                do {
-                    addMember();
-                    cout << "Finished adding member(y/n)?\n>> ";
-                    getline(cin, repeatStr);
-                    repeatStr = toLower(repeatStr);
-                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
-            }
+            repeat("Finished adding member(y/n)?", addMember);
             break;
         case 4:
-            {
-                string repeatStr;
-                do {
-                    removeMember();
-                    cout << "Finished removing member(y/n)?\n>> ";
-                    getline(cin, repeatStr);
-                    repeatStr = toLower(repeatStr);
-                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
-            }
+            repeat("Finished remove member(y/n)?", removeMember);
             break;
         case 5:
-            {
-                string repeatStr;
-                do {
-                    addEmployee();
-                    cout << "Finished adding employee(y/n)?\n>> ";
-                    getline(cin, repeatStr);
-                    repeatStr = toLower(repeatStr);
-                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
-            }
+            repeat("Finished adding employee(y/n)?", addEmployee);
             break;
         case 6:
-            {
-                string repeatStr;
-                do {
-                    removeEmployee();
-                    cout << "Finished removing employee(y/n)?\n>> ";
-                    getline(cin, repeatStr);
-                    repeatStr = toLower(repeatStr);
-                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
-            }
+            repeat("Finished removing employee(y/n)?", removeEmployee);
             break;
         default:
             break;
@@ -1037,26 +943,10 @@ int main() {
 
     switch(menuChosen) {
         case 1:
-            {
-                string repeatStr;
-                do {
-                    borrowBook();
-                    cout << "Finished doing borrow book(y/n)?\n>> ";
-                    getline(cin, repeatStr);
-                    repeatStr = toLower(repeatStr);
-                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
-            }
+            repeat("Finished doing borrow book(y/n)?", borrowBook);
             break;
         case 2:
-            {
-                string repeatStr;
-                do {
-                    returnBook();
-                    cout << "Finished doing return book(y/n)?\n>> ";
-                    getline(cin, repeatStr);
-                    repeatStr = toLower(repeatStr);
-                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
-            }
+            repeat("Finished doing return book(y/n)?", returnBook);
             break;
         case 3:
             {
@@ -1068,13 +958,18 @@ int main() {
             break;
         case 4:
             {
-                string repeatStr;
-                do {
-                    stockManagement();
-                    cout << "Finished doing stock management(y/n)?\n>> ";
-                    getline(cin, repeatStr);
-                    repeatStr = toLower(repeatStr);
-                } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
+                string password;
+                cout << "Input your password\n>> ";
+                getline(cin, password);
+                while (!currentLibrarian->login(password) &&
+                        !(password.size() == 1 && password[0] == '0')) {
+                    cout << "Wrong password\n>> ";
+                    getline(cin, password);
+                }
+                if (password[0] == '0') {
+                    break;
+                }
+                repeat("Finished doing stock managemnet(y/n)?", stockManagement);
             }
             break;
         case 5:
@@ -1089,7 +984,20 @@ int main() {
             break;
         case 6:
             //TODO create repetition
-            libraryManagement();
+            {
+                string password;
+                cout << "Input your password\n>> ";
+                getline(cin, password);
+                while (!currentLibrarian->login(password) &&
+                        !(password.size() == 1 && password[0] == '0')) {
+                    cout << "Wrong password(0 to exit)\n>> ";
+                    getline(cin, password);
+                }
+                if (password[0] == '0') {
+                    break;
+                }
+                repeat("Finished doing libraryManagement(y/n)?", libraryManagement);
+            }
             break;
         default:
             cout << "Program finished\n";
