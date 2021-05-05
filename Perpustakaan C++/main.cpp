@@ -7,6 +7,17 @@
 #include "Class/BookData.h"
 #include "Class/Employee.h"
 #include "Class/Member.h"
+//TODO: Create repeat prompt and fix it
+//TODO: Make program's back to main menu after finished
+//TODO: Set file paths as a variable
+//TODO: Stock management cls every showing book data
+//TODO: Stock management login at first time only
+//TODO: Input starts with >>
+//TODO: Tidy up prompt
+//TODO: Library management add should re-gather data
+//TODO: Add option if forgot password
+//TODO: Add details about each developer job.
+//Probably TODO: Make history as a table
 
 using namespace std;
 
@@ -17,10 +28,6 @@ Member *listMember;
 int employeeCount;
 int bookCount;
 int memberCount;
-
-int lastKnownBookDataId;
-int lastKnownMemberId;
-int lastKnownEmployeeId;
 
 void write(ostream& stream, const BookData& data) {
     stream << data.getBookName()    << endl
@@ -114,7 +121,6 @@ void readingEmployeeData(ifstream& employeeFileIn) {
 }
 
 void readingMember(ifstream& memberFileIn){
-    memberFileIn.open("Files/Member.txt");
     memberFileIn >> memberCount; memberFileIn.get();
     listMember = new Member[memberCount];
     for (int i = 0; i < memberCount; i++) {
@@ -131,7 +137,7 @@ void gatherData() {
 
     //MemberData reading
     ifstream memberFileIn;
-    memberFileIn.open("Files/Member.txt");
+    memberFileIn.open("Files/Member.txt", ios::in);
     readingMember(memberFileIn);
     memberFileIn.close();
 
@@ -229,7 +235,7 @@ void login() {
         getline(cin, password);
     }
     if (password[0] == '0')
-        return;
+        exit(1);
     currentLibrarian = ptr;
 }
 
@@ -241,7 +247,7 @@ void showMenu() {
     cout << "3. Show history\n";
     cout << "4. Stock management\n";
     cout << "5. Change password\n";
-    cout << "6. Add Title\n";
+    cout << "6. Library Management\n";
     cout << "7. Exit\n";
 }
 
@@ -284,7 +290,13 @@ void changePassword(Employee& currentLibrarian) {
 }
 
 string createBookDataId() {
-    lastKnownBookDataId = stoi(listBook[bookCount - 1].getBookId().substr(2));
+    int lastKnownBookDataId;
+    try {
+        lastKnownBookDataId = stoi(listBook[bookCount - 1].getBookId().substr(2));
+    } catch (const invalid_argument& err) {
+        cout << "Error converting BookData Id into integer\n";
+        exit(-1);
+    }
 
     lastKnownBookDataId++;
     stringstream stream;
@@ -292,11 +304,16 @@ string createBookDataId() {
     return stream.str();
 }
 
-
 string createMemberId(){
     string lastId = listMember[memberCount-1].getId();
+    int lastKnownMemberId;
     lastId = lastId.substr(2);
-    lastKnownMemberId = stoi(lastId);
+    try {
+        lastKnownMemberId = stoi(lastId);
+    } catch (const invalid_argument& err) {
+        cout << "Error converting Member Id into integer\n";
+        exit(-1);
+    }
     lastKnownMemberId++;
 
     stringstream stream;
@@ -307,7 +324,13 @@ string createMemberId(){
 string createIdEmployee() {
     string employeeLastId = listEmployee[employeeCount-1].getIdEmployee();
     employeeLastId = employeeLastId.substr(1);
-    lastKnownEmployeeId = stoi(employeeLastId);
+    int lastKnownEmployeeId;
+    try {
+        lastKnownEmployeeId = stoi(employeeLastId);
+    } catch (const invalid_argument& err) {
+        cout << "Error converting Employee Id into integer\n";
+        exit(-1);
+    }
 
     lastKnownEmployeeId++;
     stringstream stream;
@@ -542,14 +565,13 @@ void showHistory(ifstream& file) {
     while(!file.eof())
     {
         getline(file, input);
-        cout << input;
+        cout << input << endl;
     }
 }
 
 void addTitle() {
     string bookName, bookId, requiredAge, amount, available;
 
-    //TODO: retry input for every input
     string repeat;
     cout << "Enter book's name: ";
     getline(cin, bookName);
@@ -583,11 +605,11 @@ void addTitle() {
 
     int width = 18;
     cout << "\nData collected:\n";
-    cout << setw(width) << "Name"            << ": " << newBook.getBookName() << endl;
-    cout << setw(width) << "Id"              << ": " << newBook.getBookId() << endl;
-    cout << setw(width) << "Required Age"    << ": " << newBook.getRequiredAge() << endl;
-    cout << setw(width) << "Stock Amount"    << ": " << newBook.getAmount() << endl;
-    cout << setw(width) << "Stock Available" << ": " << newBook.getAvailable() << endl;
+    cout << left << setw(width) << "Name"            << ": " << newBook.getBookName() << endl;
+    cout << left << setw(width) << "Id"              << ": " << newBook.getBookId() << endl;
+    cout << left << setw(width) << "Required Age"    << ": " << newBook.getRequiredAge() << endl;
+    cout << left << setw(width) << "Stock Amount"    << ": " << newBook.getAmount() << endl;
+    cout << left << setw(width) << "Stock Available" << ": " << newBook.getAvailable() << endl;
     cout << endl;
 
     string confirmationStr;
@@ -630,7 +652,7 @@ void removeTitle() {
                 if (index == 0) {
                     return;
                 }
-                cout << "Wrong integer\n";
+                cout << "No index found\n";
                 continue;
             }
             index--;
@@ -692,16 +714,8 @@ void addMember() {
     cout << "Enter member's address: ";
     getline(cin, Address);
 
-    while (true) {
-        cout << "Enter member's phone number: ";
-        getline(cin, Telephone);
-        try {
-            stoi(Telephone);
-            break;
-        } catch (const invalid_argument& err) {
-            cout << "Not an integer\n";
-        }
-    }
+    cout << "Enter member's phone number: ";
+    getline(cin, Telephone);
 
     Id = createMemberId();
 
@@ -719,6 +733,11 @@ void addMember() {
     Member newMember(bookName, bookId, requiredAge, Name,
             Address, Telephone, Id, stoi(Age));
 
+    //Vero TODO: Show member's data
+    cout << "Name\t\t: " << Name << endl << "Address\t\t: " << Address << endl <<
+            "Telephone\t: " << Telephone << endl << " Member Id\t: " << Id << endl <<
+            "Age\t\t: " << Age << endl;
+
     string repeatStr;
     do {
         cout << "Are you sure to input this data? (y/n)\n";
@@ -726,6 +745,7 @@ void addMember() {
         repeatStr = toLower(repeatStr);
     } while (repeatStr.size() != 1 ||
             (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
+
     if (repeatStr[0] == 'y') {
         memberCount++;
         ofstream memberFileOut;
@@ -739,11 +759,18 @@ void addMember() {
     } else {
         return;
     }
+
+    //Delete list member and re read it
+    delete[] listMember;
+    ifstream memberFileIn;
+    memberFileIn.open("Files/Member.txt");
+    readingMember(memberFileIn);
+    memberFileIn.close();
 }
 
 void removeMember(){
     cout << "Welcome\n";
-    int memberNameWidth = 25, numberWidth = 5, memberIdWidth = 10, memberAddressWidth = 15, memberTelpWidth= 15, memberAgeWidth = 5;
+    int memberNameWidth = 20, numberWidth = 5, memberIdWidth = 10, memberAddressWidth = 30, memberTelpWidth= 15, memberAgeWidth = 5;
     cout << left << setw(numberWidth) << "No."
         << left << setw(memberNameWidth) << "Name"
         << left << setw(memberIdWidth) << "Member Id"
@@ -762,8 +789,9 @@ void removeMember(){
     int index;
 
     //choose member's index
+    //Vero TODO: Add option to exit removeMember
     while (true) {
-        cout << "Input member's no. to be removed\n>> ";
+        cout << "Input member's no. to be removed (input 0 to exit): \n>> ";
         getline(cin, inputStr);
         try {
             index = stoi(inputStr);
@@ -854,6 +882,8 @@ void addEmployee() {
     } else {
         return;
     }
+
+    
 }
 
 void removeEmployee() {
@@ -861,18 +891,18 @@ void removeEmployee() {
     int nameWidth = 25, numberWidth = 5, idWidth = 10, availableWidth = 15;
     cout << left << setw(numberWidth) << "No."
          << left << setw(nameWidth) << "Name"
-         << left << setw(idWidth) << "Id";
-    for (int i = 0; i < bookCount; i++) {
+         << left << setw(idWidth) << "Id" << endl;
+    for (int i = 0; i < employeeCount; i++) {
         cout << left << setw(numberWidth) << i + 1
              << left << setw(nameWidth) << listEmployee[i].getNameEmployee()
-             << left << setw(idWidth) << listEmployee[i].getIdEmployee()
-             + '/' + to_string(listBook[i].getAmount()) << endl;
+             << left << setw(idWidth) << listEmployee[i].getIdEmployee() << endl;
     }
 
     string inputStr;
     int index;
 
     //choose Employee's index
+    //Sab TODO: Option to exit removeEmployee
     while (true) {
         cout << "Input Employee's no. to be removed\n>> ";
         getline(cin, inputStr);
@@ -927,6 +957,19 @@ void removeEmployee() {
 }
 
 void libraryManagement() {
+    string password;
+    cout << "Input your password\n>> ";
+    getline(cin, password);
+    while (!currentLibrarian->login(password) &&
+            !(password.size() == 1 && password[0] == '0')) {
+        cout << "Wrong password(0 to exit)\n>> ";
+        getline(cin, password);
+    }
+
+    if (password[0] == '0') {
+        return;
+    }
+
     cout << "Welcome to library management.\n";
     cout << "1. Add title.\n"
          << "2. Remove title.\n"
@@ -974,8 +1017,8 @@ void libraryManagement() {
             {
                 string repeatStr;
                 do {
-                    //removeMember();
-                    cout << "Finished adding member(y/n)?\n>> ";
+                    removeMember();
+                    cout << "Finished removing member(y/n)?\n>> ";
                     getline(cin, repeatStr);
                     repeatStr = toLower(repeatStr);
                 } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
@@ -996,7 +1039,7 @@ void libraryManagement() {
             {
                 string repeatStr;
                 do {
-                    //removeEmployee();
+                    removeEmployee();
                     cout << "Finished removing employee(y/n)?\n>> ";
                     getline(cin, repeatStr);
                     repeatStr = toLower(repeatStr);
@@ -1057,13 +1100,21 @@ int main() {
             }
             break;
         case 5:
-            currentLibrarian->changePassword();
+            {
+                currentLibrarian->changePassword();
+                ofstream employeeFile;
+                employeeFile.open("Files/Employee.txt", ios::out);
+                employeeFile << employeeCount << endl;
+                writeList(employeeFile, listEmployee);
+                employeeFile.close();
+            }
             break;
         case 6:
+            //TODO create repetition
             libraryManagement();
             break;
         default:
-            cout << "Default\n";
+            cout << "Program finished\n";
             break;
     }
     return 0;
