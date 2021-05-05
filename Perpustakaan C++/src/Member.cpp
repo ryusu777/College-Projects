@@ -1,4 +1,4 @@
-#include "Class/Member.h"
+#include "../Class/Member.h"
 
 
     Member::Member(std::string bookName, std::string bookId, int requiredAge, 
