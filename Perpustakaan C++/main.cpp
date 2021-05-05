@@ -7,19 +7,19 @@
 #include "Class/BookData.h"
 #include "Class/Employee.h"
 #include "Class/Member.h"
-//TODO: Create repeat prompt and fix it
-//TODO: Make program's back to main menu after finished
-//TODO: Set file paths as a variable
-//TODO: Stock management cls every showing book data
-//TODO: Stock management login at first time only
+//Vero Sabrina TODO: Stock management cls every showing list data
 //TODO: Input starts with >>
 //TODO: Tidy up prompt
 //TODO: Library management add should re-gather data
 //TODO: Add option if forgot password
-//TODO: Add details about each developer job.
+//TODO: Add details about each developer job in functions.
 //Probably TODO: Make history as a table
 
 using namespace std;
+string BookDataFilePath = "Files/BookData.txt";
+string MemberFilePath = "Files/Member.txt";
+string EmployeeFilePath = "Files/Employee.txt";
+string HistoryFilePath = "Files/History.txt";
 
 Employee *listEmployee;
 Employee *currentLibrarian;
@@ -155,19 +155,19 @@ void readingMember(ifstream& memberFileIn){
 void gatherData() {
     //BookData reading
     ifstream bookFileIn;
-    bookFileIn.open("Files/BookData.txt", ios::in);
+    bookFileIn.open(BookDataFilePath, ios::in);
     readingBookData(bookFileIn);
     bookFileIn.close();
 
     //MemberData reading
     ifstream memberFileIn;
-    memberFileIn.open("Files/Member.txt", ios::in);
+    memberFileIn.open(MemberFilePath, ios::in);
     readingMember(memberFileIn);
     memberFileIn.close();
 
     ////EmployeeData reading
     ifstream employeeFileIn;
-    employeeFileIn.open("Files/Employee.txt", ios::in);
+    employeeFileIn.open(EmployeeFilePath, ios::in);
     readingEmployeeData(employeeFileIn);
     employeeFileIn.close();
 }
@@ -193,19 +193,19 @@ void writeList(ostream& output, Employee* list) {
 void writeData() {
     //TODO: Separate each read into functions
     ofstream bookFileOut;
-    bookFileOut.open("Files/BookData.txt", ios::out);
+    bookFileOut.open(BookDataFilePath, ios::out);
     bookFileOut << bookCount << endl;
     writeList(bookFileOut, listBook);
     bookFileOut.close();
 
     ofstream memberFileOut;
-    memberFileOut.open("Files/Member.txt", ios::out);
+    memberFileOut.open(MemberFilePath, ios::out);
     memberFileOut << memberCount << endl;
     writeList(memberFileOut, listMember);
     memberFileOut.close();
   
     ofstream employeeFileOut;
-    employeeFileOut.open("Files/Employee.txt", ios::out);
+    employeeFileOut.open(EmployeeFilePath, ios::out);
     employeeFileOut << employeeCount << endl;
     writeList(employeeFileOut, listEmployee);
     employeeFileOut.close();
@@ -276,6 +276,7 @@ void showMenu() {
 }
 
 void showBookData() {
+    system("cls");
     int nameWidth = 25, numberWidth = 5, idWidth = 10, availableWidth = 15;
     cout << left << setw(numberWidth) << "No."
         << left << setw(nameWidth) << "Title"
@@ -499,7 +500,7 @@ void borrowBook() {
             } else {
                 // check if book is available
                 ofstream historyFile;
-                historyFile.open("Files/History.txt", ios::app);
+                historyFile.open(HistoryFilePath, ios::app);
                 try {
                     ptrBookData->borrowBook(historyFile, ptrMember->getName());
                     ptrMember->borrowBook(ptrBookData->getBookName(), ptrBookData->getBookId(),
@@ -552,7 +553,7 @@ void returnBook() {
     if (ptrBookData != nullptr) {
         cout << "Book " << ptrBookData->getBookName() << " found.\n";
         ofstream historyFile;
-        historyFile.open("Files/History.txt", ios::app);
+        historyFile.open(HistoryFilePath, ios::app);
         ptrBookData->returnBook(historyFile, ptrMember->getName());
         ptrMember->returnBook();
         cout << "Book returned\n";
@@ -564,6 +565,7 @@ void returnBook() {
 }
 
 void showHistory(ifstream& file) {
+    system("cls");
     string input;
 
     while(!file.eof())
@@ -618,7 +620,7 @@ void addTitle() {
     if (repeat("Sure to add this book(y/n)?")) {
         bookCount++;
         ofstream bookFileOut;
-        bookFileOut.open("Files/BookData.txt", ios::out);
+        bookFileOut.open(BookDataFilePath, ios::out);
         bookFileOut << bookCount << endl;
         for (int i = 0; i < bookCount - 1; i++) {
             write(bookFileOut, listBook[i]);
@@ -671,7 +673,7 @@ void removeTitle() {
     if (repeat("Sure to remove this book(y/n)?")) {
         bookCount--;
         ofstream bookFileOut;
-        bookFileOut.open("Files/BookData.txt", ios::out);
+        bookFileOut.open(BookDataFilePath, ios::out);
         bookFileOut << bookCount << endl;
         for (int i = 0; i < bookCount + 1; i++) {
             if (i != index) {
@@ -686,7 +688,7 @@ void removeTitle() {
     //Delete listBook and re read it
     delete[] listBook;
     ifstream bookFileIn;
-    bookFileIn.open("Files/BookData.txt");
+    bookFileIn.open(BookDataFilePath);
     readingBookData(bookFileIn);
     bookFileIn.close();
 }
@@ -724,7 +726,7 @@ void addMember() {
     if (repeat("Sure to input this data(y/n)?")) {
         memberCount++;
         ofstream memberFileOut;
-        memberFileOut.open("Files/Member.txt", ios::out);
+        memberFileOut.open(MemberFilePath, ios::out);
         memberFileOut << memberCount << endl;
         for (int i = 0; i < memberCount - 1; i++) {
             write(memberFileOut, listMember[i]);
@@ -790,7 +792,7 @@ void removeMember(){
     if (repeat("Sure to remove this member(y/n)?")) {
         memberCount--;
         ofstream memberFileOut;
-        memberFileOut.open("Files/Member.txt", ios::out);
+        memberFileOut.open(MemberFilePath, ios::out);
         memberFileOut << memberCount << endl;
         for (int i = 0; i < memberCount + 1; i++) {
             if (i != index) {
@@ -805,7 +807,7 @@ void removeMember(){
     //Delete list member and re read it
     delete[] listMember;
     ifstream memberFileIn;
-    memberFileIn.open("Files/Member.txt");
+    memberFileIn.open(MemberFilePath);
     readingMember(memberFileIn);
     memberFileIn.close();
 }
@@ -825,7 +827,7 @@ void addEmployee() {
     if (repeat("Sure to input this employee's data(y/n)?")) {
         employeeCount++;
         ofstream employeeFileOut;
-        employeeFileOut.open("Files/Employee.txt", ios::out);
+        employeeFileOut.open(EmployeeFilePath, ios::out);
         employeeFileOut << employeeCount << endl;
         for (int i = 0; i < employeeCount - 1; i++) {
             write(employeeFileOut, listEmployee[i]);
@@ -880,7 +882,7 @@ void removeEmployee() {
     if (repeat("Sure to remove this employee(y/n)?")) {
         employeeCount--;
         ofstream employeeFileOut;
-        employeeFileOut.open("Files/Employee.txt", ios::out);
+        employeeFileOut.open(EmployeeFilePath, ios::out);
         employeeFileOut << employeeCount << endl;
         for (int i = 0; i < employeeCount + 1; i++) {
             if (i != index) {
@@ -895,7 +897,7 @@ void removeEmployee() {
     //Delete listBook and re read it
     delete[] listEmployee;
     ifstream employeeFileIn;
-    employeeFileIn.open("Files/Employee.txt");
+    employeeFileIn.open(EmployeeFilePath);
     readingEmployeeData(employeeFileIn);
     employeeFileIn.close();
 }
@@ -935,9 +937,7 @@ void libraryManagement() {
     }
 }
 
-int main() {
-    gatherData();
-    login();
+int startMenu() {
     showMenu();
     int menuChosen = userChooseMenu(7);
 
@@ -951,7 +951,7 @@ int main() {
         case 3:
             {
                 ifstream file;
-                file.open("Files/History.txt", ios::in);
+                file.open(HistoryFilePath, ios::in);
                 showHistory(file);
                 file.close();
             }
@@ -963,7 +963,7 @@ int main() {
                 getline(cin, password);
                 while (!currentLibrarian->login(password) &&
                         !(password.size() == 1 && password[0] == '0')) {
-                    cout << "Wrong password\n>> ";
+                    cout << "Wrong password(0 to exit)\n>> ";
                     getline(cin, password);
                 }
                 if (password[0] == '0') {
@@ -976,7 +976,7 @@ int main() {
             {
                 currentLibrarian->changePassword();
                 ofstream employeeFile;
-                employeeFile.open("Files/Employee.txt", ios::out);
+                employeeFile.open(EmployeeFilePath, ios::out);
                 employeeFile << employeeCount << endl;
                 writeList(employeeFile, listEmployee);
                 employeeFile.close();
@@ -1000,8 +1000,16 @@ int main() {
             }
             break;
         default:
-            cout << "Program finished\n";
+            return 0;
             break;
     }
+    return 1;
+}
+
+int main() {
+    gatherData();
+    login();
+    while (startMenu());
+    cout << "Thanks for using this program.\n";
     return 0;
 }
