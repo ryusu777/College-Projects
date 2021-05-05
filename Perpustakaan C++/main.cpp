@@ -15,6 +15,8 @@
 //TODO: Input starts with >>
 //TODO: Tidy up prompt
 //TODO: Library management add should re-gather data
+//TODO: Add option if forgot password
+//TODO: Add details about each developer job.
 //Probably TODO: Make history as a table
 
 using namespace std;
@@ -26,10 +28,6 @@ Member *listMember;
 int employeeCount;
 int bookCount;
 int memberCount;
-
-int lastKnownBookDataId;
-int lastKnownMemberId;
-int lastKnownEmployeeId;
 
 void write(ostream& stream, const BookData& data) {
     stream << data.getBookName()    << endl
@@ -292,7 +290,13 @@ void changePassword(Employee& currentLibrarian) {
 }
 
 string createBookDataId() {
-    lastKnownBookDataId = stoi(listBook[bookCount - 1].getBookId().substr(2));
+    int lastKnownBookDataId;
+    try {
+        lastKnownBookDataId = stoi(listBook[bookCount - 1].getBookId().substr(2));
+    } catch (const invalid_argument& err) {
+        cout << "Error converting BookData Id into integer\n";
+        exit(-1);
+    }
 
     lastKnownBookDataId++;
     stringstream stream;
@@ -302,8 +306,14 @@ string createBookDataId() {
 
 string createMemberId(){
     string lastId = listMember[memberCount-1].getId();
+    int lastKnownMemberId;
     lastId = lastId.substr(2);
-    lastKnownMemberId = stoi(lastId);
+    try {
+        lastKnownMemberId = stoi(lastId);
+    } catch (const invalid_argument& err) {
+        cout << "Error converting Member Id into integer\n";
+        exit(-1);
+    }
     lastKnownMemberId++;
 
     stringstream stream;
@@ -314,7 +324,13 @@ string createMemberId(){
 string createIdEmployee() {
     string employeeLastId = listEmployee[employeeCount-1].getIdEmployee();
     employeeLastId = employeeLastId.substr(1);
-    lastKnownEmployeeId = stoi(employeeLastId);
+    int lastKnownEmployeeId;
+    try {
+        lastKnownEmployeeId = stoi(employeeLastId);
+    } catch (const invalid_argument& err) {
+        cout << "Error converting Employee Id into integer\n";
+        exit(-1);
+    }
 
     lastKnownEmployeeId++;
     stringstream stream;
