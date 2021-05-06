@@ -714,16 +714,8 @@ void addMember() {
     cout << "Enter member's address: ";
     getline(cin, Address);
 
-    //while (true) {
-        cout << "Enter member's phone number: ";
-        getline(cin, Telephone);
-        //try {
-            //stoi(Telephone);
-            //break;
-        //} catch (const invalid_argument& err) {
-            //cout << "Not an integer\n";
-        //}
-    //}
+    cout << "Enter member's phone number: ";
+    getline(cin, Telephone);
 
     Id = createMemberId();
 
@@ -742,6 +734,10 @@ void addMember() {
             Address, Telephone, Id, stoi(Age));
 
     //Vero TODO: Show member's data
+    cout << "Name\t\t: " << Name << endl << "Address\t\t: " << Address << endl <<
+            "Telephone\t: " << Telephone << endl << " Member Id\t: " << Id << endl <<
+            "Age\t\t: " << Age << endl;
+
     string repeatStr;
     do {
         cout << "Are you sure to input this data? (y/n)\n";
@@ -749,6 +745,7 @@ void addMember() {
         repeatStr = toLower(repeatStr);
     } while (repeatStr.size() != 1 ||
             (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
+
     if (repeatStr[0] == 'y') {
         memberCount++;
         ofstream memberFileOut;
@@ -762,6 +759,13 @@ void addMember() {
     } else {
         return;
     }
+
+    //Delete list member and re read it
+    delete[] listMember;
+    ifstream memberFileIn;
+    memberFileIn.open("Files/Member.txt");
+    readingMember(memberFileIn);
+    memberFileIn.close();
 }
 
 void removeMember(){
@@ -787,7 +791,7 @@ void removeMember(){
     //choose member's index
     //Vero TODO: Add option to exit removeMember
     while (true) {
-        cout << "Input member's no. to be removed\n>> ";
+        cout << "Input member's no. to be removed (input 0 to exit): \n>> ";
         getline(cin, inputStr);
         try {
             index = stoi(inputStr);
@@ -878,6 +882,8 @@ void addEmployee() {
     } else {
         return;
     }
+
+    
 }
 
 void removeEmployee() {
