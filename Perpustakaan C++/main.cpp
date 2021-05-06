@@ -883,7 +883,12 @@ void addEmployee() {
         return;
     }
 
-    
+    //Delete listEmployee and re read it
+    delete[] listEmployee;
+    ifstream employeeFileIn;
+    employeeFileIn.open("Files/Employee.txt");
+    readingEmployeeData(employeeFileIn);
+    employeeFileIn.close();
 }
 
 void removeEmployee() {
@@ -904,13 +909,18 @@ void removeEmployee() {
     //choose Employee's index
     //Sab TODO: Option to exit removeEmployee
     while (true) {
-        cout << "Input Employee's no. to be removed\n>> ";
+        cout << "Input Employee's no. to be removed (input 0 to exit\n>> ";
         getline(cin, inputStr);
         try {
             index = stoi(inputStr);
             if (index < 1 || index > employeeCount) {
-                cout << "Wrong integer\n";
-                continue;
+                if (index == 0) {
+                    return;
+                }
+                else {
+                    cout << "Wrong integer\n";
+                    continue;
+                }
             }
             index--;
             break;
@@ -948,7 +958,7 @@ void removeEmployee() {
         return;
     }
 
-    //Delete listBook and re read it
+    //Delete listEmployee and re read it
     delete[] listEmployee;
     ifstream employeeFileIn;
     employeeFileIn.open("Files/Employee.txt");
