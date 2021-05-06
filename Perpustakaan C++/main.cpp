@@ -722,7 +722,10 @@ void addMember() {
     Member newMember(bookName, bookId, requiredAge, Name,
             Address, Telephone, Id, stoi(Age));
 
-    //Vero TODO: Show member's data
+    cout << "Name\t\t: " << Name << endl << "Address\t\t: " << Address << endl <<
+            "Telephone\t: " << Telephone << endl << " Member Id\t: " << Id << endl <<
+            "Age\t\t: " << Age << endl;
+
     if (repeat("Sure to input this data(y/n)?")) {
         memberCount++;
         ofstream memberFileOut;
@@ -736,6 +739,13 @@ void addMember() {
     } else {
         return;
     }
+
+    //Delete list member and re read it
+    delete[] listMember;
+    ifstream memberFileIn;
+    memberFileIn.open("Files/Member.txt");
+    readingMember(memberFileIn);
+    memberFileIn.close();
 }
 
 void removeMember(){
@@ -761,7 +771,7 @@ void removeMember(){
     //choose member's index
     //Vero TODO: Add option to exit removeMember
     while (true) {
-        cout << "Input member's no. to be removed\n>> ";
+        cout << "Input member's no. to be removed (input 0 to exit): \n>> ";
         getline(cin, inputStr);
         try {
             index = stoi(inputStr);
@@ -837,6 +847,13 @@ void addEmployee() {
     } else {
         return;
     }
+
+    //Delete listEmployee and re read it
+    delete[] listEmployee;
+    ifstream employeeFileIn;
+    employeeFileIn.open("Files/Employee.txt");
+    readingEmployeeData(employeeFileIn);
+    employeeFileIn.close();
 }
 
 void removeEmployee() {
@@ -857,13 +874,18 @@ void removeEmployee() {
     //choose Employee's index
     //Sab TODO: Option to exit removeEmployee
     while (true) {
-        cout << "Input Employee's no. to be removed\n>> ";
+        cout << "Input Employee's no. to be removed (input 0 to exit\n>> ";
         getline(cin, inputStr);
         try {
             index = stoi(inputStr);
             if (index < 1 || index > employeeCount) {
-                cout << "Wrong integer\n";
-                continue;
+                if (index == 0) {
+                    return;
+                }
+                else {
+                    cout << "Wrong integer\n";
+                    continue;
+                }
             }
             index--;
             break;
@@ -894,7 +916,7 @@ void removeEmployee() {
         return;
     }
 
-    //Delete listBook and re read it
+    //Delete listEmployee and re read it
     delete[] listEmployee;
     ifstream employeeFileIn;
     employeeFileIn.open(EmployeeFilePath);
@@ -904,6 +926,19 @@ void removeEmployee() {
 
 
 void libraryManagement() {
+    string password;
+    cout << "Input your password\n>> ";
+    getline(cin, password);
+    while (!currentLibrarian->login(password) &&
+            !(password.size() == 1 && password[0] == '0')) {
+        cout << "Wrong password(0 to exit)\n>> ";
+        getline(cin, password);
+    }
+
+    if (password[0] == '0') {
+        return;
+    }
+
     cout << "Welcome to library management.\n";
     cout << "1. Add title.\n"
          << "2. Remove title.\n"
@@ -983,7 +1018,6 @@ int startMenu() {
             }
             break;
         case 6:
-            //TODO create repetition
             {
                 string password;
                 cout << "Input your password\n>> ";
