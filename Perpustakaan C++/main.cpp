@@ -15,6 +15,8 @@
 //TODO: Input starts with >>
 //TODO: Tidy up prompt
 //TODO: Library management add should re-gather data
+//TODO: Add option if forgot password
+//TODO: Add details about each developer job.
 //Probably TODO: Make history as a table
 
 using namespace std;
@@ -26,10 +28,6 @@ Member *listMember;
 int employeeCount;
 int bookCount;
 int memberCount;
-
-int lastKnownBookDataId;
-int lastKnownMemberId;
-int lastKnownEmployeeId;
 
 void write(ostream& stream, const BookData& data) {
     stream << data.getBookName()    << endl
@@ -292,7 +290,13 @@ void changePassword(Employee& currentLibrarian) {
 }
 
 string createBookDataId() {
-    lastKnownBookDataId = stoi(listBook[bookCount - 1].getBookId().substr(2));
+    int lastKnownBookDataId;
+    try {
+        lastKnownBookDataId = stoi(listBook[bookCount - 1].getBookId().substr(2));
+    } catch (const invalid_argument& err) {
+        cout << "Error converting BookData Id into integer\n";
+        exit(-1);
+    }
 
     lastKnownBookDataId++;
     stringstream stream;
@@ -302,8 +306,14 @@ string createBookDataId() {
 
 string createMemberId(){
     string lastId = listMember[memberCount-1].getId();
+    int lastKnownMemberId;
     lastId = lastId.substr(2);
-    lastKnownMemberId = stoi(lastId);
+    try {
+        lastKnownMemberId = stoi(lastId);
+    } catch (const invalid_argument& err) {
+        cout << "Error converting Member Id into integer\n";
+        exit(-1);
+    }
     lastKnownMemberId++;
 
     stringstream stream;
@@ -314,7 +324,13 @@ string createMemberId(){
 string createIdEmployee() {
     string employeeLastId = listEmployee[employeeCount-1].getIdEmployee();
     employeeLastId = employeeLastId.substr(1);
-    lastKnownEmployeeId = stoi(employeeLastId);
+    int lastKnownEmployeeId;
+    try {
+        lastKnownEmployeeId = stoi(employeeLastId);
+    } catch (const invalid_argument& err) {
+        cout << "Error converting Employee Id into integer\n";
+        exit(-1);
+    }
 
     lastKnownEmployeeId++;
     stringstream stream;
@@ -698,16 +714,8 @@ void addMember() {
     cout << "Enter member's address: ";
     getline(cin, Address);
 
-    //while (true) {
-        cout << "Enter member's phone number: ";
-        getline(cin, Telephone);
-        //try {
-            //stoi(Telephone);
-            //break;
-        //} catch (const invalid_argument& err) {
-            //cout << "Not an integer\n";
-        //}
-    //}
+    cout << "Enter member's phone number: ";
+    getline(cin, Telephone);
 
     Id = createMemberId();
 
@@ -726,6 +734,10 @@ void addMember() {
             Address, Telephone, Id, stoi(Age));
 
     //Vero TODO: Show member's data
+    cout << "Name\t\t: " << Name << endl << "Address\t\t: " << Address << endl <<
+            "Telephone\t: " << Telephone << endl << " Member Id\t: " << Id << endl <<
+            "Age\t\t: " << Age << endl;
+
     string repeatStr;
     do {
         cout << "Are you sure to input this data? (y/n)\n";
@@ -733,6 +745,7 @@ void addMember() {
         repeatStr = toLower(repeatStr);
     } while (repeatStr.size() != 1 ||
             (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
+
     if (repeatStr[0] == 'y') {
         memberCount++;
         ofstream memberFileOut;
@@ -746,6 +759,13 @@ void addMember() {
     } else {
         return;
     }
+
+    //Delete list member and re read it
+    delete[] listMember;
+    ifstream memberFileIn;
+    memberFileIn.open("Files/Member.txt");
+    readingMember(memberFileIn);
+    memberFileIn.close();
 }
 
 void removeMember(){
@@ -771,7 +791,7 @@ void removeMember(){
     //choose member's index
     //Vero TODO: Add option to exit removeMember
     while (true) {
-        cout << "Input member's no. to be removed\n>> ";
+        cout << "Input member's no. to be removed (input 0 to exit): \n>> ";
         getline(cin, inputStr);
         try {
             index = stoi(inputStr);
@@ -869,7 +889,6 @@ void addEmployee() {
     employeeFileIn.open("Files/Employee.txt");
     readingEmployeeData(employeeFileIn);
     employeeFileIn.close();
-    
 }
 
 void removeEmployee() {
