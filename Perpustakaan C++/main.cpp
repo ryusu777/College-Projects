@@ -45,11 +45,29 @@ void write(ostream& stream, const Member& data) {
         << data.getAge()         << endl;
 }
 
+string encrypt(string input) {
+    int shift = rand() % 10 + 1;
+    string output = to_string(shift);
+    for (unsigned i = 0; i < input.size(); i++) {
+        output += input[i] + shift;
+    }
+    return output;
+}
+
+string decrypt(string input) {
+    int shift = stoi(string(1, input[0]));
+    string output = "";
+    for (unsigned i = 1; i < input.size(); i++) {
+        output += input[i] - shift;
+    }
+    return output;
+}
+
 //Sabrina
 void write(ostream& stream, const Employee& data) {
     stream << data.getNameEmployee()    << endl
-        << data.getIdEmployee()      << endl
-        << data.getPassword()        << endl;
+        << data.getIdEmployee()         << endl
+        << encrypt(data.getPassword())  << endl;
 }
 
 BookData readBookData(istream& stream) {
@@ -92,6 +110,7 @@ Employee readEmployee(istream& stream) {
     getline(stream, nameEmployee);
     getline(stream, idEmployee);
     getline(stream, password);
+    password = decrypt(password);
     return Employee(nameEmployee, idEmployee, password);
 }
 
