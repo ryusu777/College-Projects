@@ -7,7 +7,6 @@
 #include "Class/BookData.h"
 #include "Class/Employee.h"
 #include "Class/Member.h"
-//TODO: Add option if forgot password
 //Probably TODO: Make history as a table
 
 using namespace std;
@@ -15,7 +14,6 @@ string BookDataFilePath = "Files/BookData.txt";
 string MemberFilePath = "Files/Member.txt";
 string EmployeeFilePath = "Files/Employee.txt";
 string HistoryFilePath = "Files/History.txt";
-string masterPassword = "123";
 
 Employee *listEmployee;
 Employee *currentLibrarian;
@@ -55,7 +53,13 @@ string encrypt(string input) {
 }
 
 string decrypt(string input) {
-    int shift = stoi(string(1, input[0]));
+    int shift;
+    try {
+        shift = stoi(string(1, input[0]));
+    } catch (const invalid_argument& err) {
+        cout << "Password is not encrypted.\n";
+        exit(-1);
+    }
     string output = "";
     for (unsigned i = 1; i < input.size(); i++) {
         output += input[i] - shift;
@@ -150,17 +154,18 @@ void repeat(string message, T callback) {
     } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] == 'n'));
 }
 
-bool repeat(string message) {
-    string repeatStr;
-    do {
-        cout << message << endl << ">> ";
-        getline(cin, repeatStr);
-        repeatStr = toLower(repeatStr);
-    } while (repeatStr.size() != 1 || (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
-    if (repeatStr[0] == 'y') {
-        return true;
-    }
-    return false;
+bool prompt(string message) {
+  string repeatStr;
+  do {
+    cout << message << endl << ">> ";
+    getline(cin, repeatStr);
+    repeatStr = toLower(repeatStr);
+  } while (repeatStr.size() != 1 ||
+           (repeatStr[0] != 'y' && repeatStr[0] != 'n'));
+  if (repeatStr[0] == 'y') {
+    return true;
+  }
+  return false;
 }
 
 void readingBookData(ifstream& bookFileIn) {
@@ -190,25 +195,6 @@ void readingMember(ifstream& memberFileIn){
 }
 
 //All
-void gatherData() {
-    //BookData reading
-    ifstream bookFileIn;
-    bookFileIn.open(BookDataFilePath, ios::in);
-    readingBookData(bookFileIn);
-    bookFileIn.close();
-
-    //MemberData reading
-    ifstream memberFileIn;
-    memberFileIn.open(MemberFilePath, ios::in);
-    readingMember(memberFileIn);
-    memberFileIn.close();
-
-    ////EmployeeData reading
-    ifstream employeeFileIn;
-    employeeFileIn.open(EmployeeFilePath, ios::in);
-    readingEmployeeData(employeeFileIn);
-    employeeFileIn.close();
-}
 
 void writeList(ostream& output, BookData* list) {
     for (int i = 0; i < bookCount; i++) {
@@ -547,10 +533,10 @@ void borrowBook() {
             cout << "No book found.\n";
         }
 
-        if (repeat("Retry input book(y/n)?")) {
-            continue;
+        if (prompt("Retry input book(y/n)?")) {
+          continue;
         } else {
-            return;
+          return;
         }
     } while (true);
 }
@@ -628,19 +614,19 @@ void addTitle() {
     cout << left << setw(width) << "Stock Available" << ": " << newBook.getAvailable() << endl;
     cout << endl;
 
-    if (repeat("Sure to add this book(y/n)?")) {
-        bookCount++;
-        ofstream bookFileOut;
-        bookFileOut.open(BookDataFilePath, ios::out);
-        bookFileOut << bookCount << endl;
-        for (int i = 0; i < bookCount - 1; i++) {
-            write(bookFileOut, listBook[i]);
-        }
-        write(bookFileOut, newBook);
-        bookFileOut.close();
-        cout << newBook.getBookName() << " added.\n";
+    if (prompt("Sure to add this book(y/n)?")) {
+      bookCount++;
+      ofstream bookFileOut;
+      bookFileOut.open(BookDataFilePath, ios::out);
+      bookFileOut << bookCount << endl;
+      for (int i = 0; i < bookCount - 1; i++) {
+        write(bookFileOut, listBook[i]);
+      }
+      write(bookFileOut, newBook);
+      bookFileOut.close();
+      cout << newBook.getBookName() << " added.\n";
     } else {
-        return;
+      return;
     }
 
     //Delete listBook and re read it
@@ -683,19 +669,19 @@ void removeTitle() {
         return;
     }
 
-    if (repeat("Sure to remove this book(y/n)?")) {
-        bookCount--;
-        ofstream bookFileOut;
-        bookFileOut.open(BookDataFilePath, ios::out);
-        bookFileOut << bookCount << endl;
-        for (int i = 0; i < bookCount + 1; i++) {
-            if (i != index) {
-                write(bookFileOut, listBook[i]);
-            }
+    if (prompt("Sure to remove this book(y/n)?")) {
+      bookCount--;
+      ofstream bookFileOut;
+      bookFileOut.open(BookDataFilePath, ios::out);
+      bookFileOut << bookCount << endl;
+      for (int i = 0; i < bookCount + 1; i++) {
+        if (i != index) {
+          write(bookFileOut, listBook[i]);
         }
-        bookFileOut.close();
+      }
+      bookFileOut.close();
     } else {
-        return;
+      return;
     }
 
     //Delete listBook and re read it
@@ -732,18 +718,18 @@ void addMember() {
             "Telephone\t: " << Telephone << endl << " Member Id\t: " << Id << endl <<
             "Age\t\t: " << Age << endl;
 
-    if (repeat("Sure to input this data(y/n)?")) {
-        memberCount++;
-        ofstream memberFileOut;
-        memberFileOut.open(MemberFilePath, ios::out);
-        memberFileOut << memberCount << endl;
-        for (int i = 0; i < memberCount - 1; i++) {
-            write(memberFileOut, listMember[i]);
-        }
-        write(memberFileOut, newMember);
-        memberFileOut.close();
+    if (prompt("Sure to input this data(y/n)?")) {
+      memberCount++;
+      ofstream memberFileOut;
+      memberFileOut.open(MemberFilePath, ios::out);
+      memberFileOut << memberCount << endl;
+      for (int i = 0; i < memberCount - 1; i++) {
+        write(memberFileOut, listMember[i]);
+      }
+      write(memberFileOut, newMember);
+      memberFileOut.close();
     } else {
-        return;
+      return;
     }
 
     //Delete list member and re read it
@@ -799,19 +785,19 @@ void removeMember(){
         return;
     }
 
-    if (repeat("Sure to remove this member(y/n)?")) {
-        memberCount--;
-        ofstream memberFileOut;
-        memberFileOut.open(MemberFilePath, ios::out);
-        memberFileOut << memberCount << endl;
-        for (int i = 0; i < memberCount + 1; i++) {
-            if (i != index) {
-                write(memberFileOut, listMember[i]);
-            }
+    if (prompt("Sure to remove this member(y/n)?")) {
+      memberCount--;
+      ofstream memberFileOut;
+      memberFileOut.open(MemberFilePath, ios::out);
+      memberFileOut << memberCount << endl;
+      for (int i = 0; i < memberCount + 1; i++) {
+        if (i != index) {
+          write(memberFileOut, listMember[i]);
         }
-        memberFileOut.close();
+      }
+      memberFileOut.close();
     } else {
-        return;
+      return;
     }
 
     //Delete list member and re read it
@@ -835,18 +821,19 @@ void addEmployee() {
     cout << "Collected Data: "<< endl;
     cout << "Name\t\t: " << newEmployee.getNameEmployee() << endl;
     cout << "Id\t\t: " << newEmployee.getIdEmployee() << endl;
-    if (repeat("Sure to input this employee's data(y/n)?")) {
-        employeeCount++;
-        ofstream employeeFileOut;
-        employeeFileOut.open(EmployeeFilePath, ios::out);
-        employeeFileOut << employeeCount << endl;
-        for (int i = 0; i < employeeCount - 1; i++) {
-            write(employeeFileOut, listEmployee[i]);
-        }
-        write(employeeFileOut, newEmployee);
-        employeeFileOut.close();;
+    if (prompt("Sure to input this employee's data(y/n)?")) {
+      employeeCount++;
+      ofstream employeeFileOut;
+      employeeFileOut.open(EmployeeFilePath, ios::out);
+      employeeFileOut << employeeCount << endl;
+      for (int i = 0; i < employeeCount - 1; i++) {
+        write(employeeFileOut, listEmployee[i]);
+      }
+      write(employeeFileOut, newEmployee);
+      employeeFileOut.close();
+      ;
     } else {
-        return;
+      return;
     }
 
     //Delete listEmployee and re read it
@@ -896,19 +883,19 @@ void removeEmployee() {
     cout << setw(width) << "Id"             << ": " << listEmployee[index].getIdEmployee() << endl;
     
     cout << "Confirm delete?\n>> ";
-    if (repeat("Sure to remove this employee(y/n)?")) {
-        employeeCount--;
-        ofstream employeeFileOut;
-        employeeFileOut.open(EmployeeFilePath, ios::out);
-        employeeFileOut << employeeCount << endl;
-        for (int i = 0; i < employeeCount + 1; i++) {
-            if (i != index) {
-                write(employeeFileOut, listEmployee[i]);
-            }
+    if (prompt("Sure to remove this employee(y/n)?")) {
+      employeeCount--;
+      ofstream employeeFileOut;
+      employeeFileOut.open(EmployeeFilePath, ios::out);
+      employeeFileOut << employeeCount << endl;
+      for (int i = 0; i < employeeCount + 1; i++) {
+        if (i != index) {
+          write(employeeFileOut, listEmployee[i]);
         }
-        employeeFileOut.close();
+      }
+      employeeFileOut.close();
     } else {
-        return;
+      return;
     }
 
     //Delete listEmployee and re read it
@@ -919,6 +906,58 @@ void removeEmployee() {
     employeeFileIn.close();
 }
 
+void gatherData() {
+    //EmployeeData reading
+    ifstream employeeFileIn;
+    employeeFileIn.open(EmployeeFilePath, ios::in);
+    if (!employeeFileIn.is_open()) {
+        if (prompt("Employee data not found at " + EmployeeFilePath + ". Would you like to add one?")) {
+            addEmployee();
+        } 
+
+        employeeFileIn.open(EmployeeFilePath, ios::in);
+        if (!employeeFileIn.is_open()) {
+            cout << "Program terminated because of missing data.\n";
+            exit(-1);
+        }
+    }
+    readingEmployeeData(employeeFileIn);
+    employeeFileIn.close();
+
+    //BookData reading
+    ifstream bookFileIn;
+    bookFileIn.open(BookDataFilePath, ios::in);
+    if (!bookFileIn.is_open()) {
+        if (prompt("Book data not found at " + BookDataFilePath + ". Would you like to add one?")) {
+            addTitle();
+        } 
+
+        bookFileIn.open(BookDataFilePath, ios::in);
+        if (!bookFileIn.is_open()) {
+            cout << "Program terminated because of missing data.\n";
+            exit(-1);
+        }
+    }
+    readingBookData(bookFileIn);
+    bookFileIn.close();
+
+    //MemberData reading
+    ifstream memberFileIn;
+    memberFileIn.open(MemberFilePath, ios::in);
+    if (!memberFileIn.is_open()) {
+        if (prompt("Member data not found at " + MemberFilePath + ". Would you like to add one?")) {
+            addMember();
+        } 
+
+        memberFileIn.open(MemberFilePath, ios::in);
+        if (!memberFileIn.is_open()) {
+            cout << "Program terminated because of missing data.\n";
+            exit(-1);
+        }
+    }
+    readingMember(memberFileIn);
+    memberFileIn.close();
+}
 
 void libraryManagement() {
     cout << "Welcome to library management.\n";
