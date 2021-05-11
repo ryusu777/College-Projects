@@ -10,10 +10,11 @@
 //Probably TODO: Make history as a table
 
 using namespace std;
-string BookDataFilePath = "Files/BookData.txt";
-string MemberFilePath = "Files/Member.txt";
-string EmployeeFilePath = "Files/Employee.txt";
-string HistoryFilePath = "Files/History.txt";
+const string FileFolderPath = "Files";
+const string BookDataFilePath = FileFolderPath + "/BookData.txt";
+const string MemberFilePath = FileFolderPath + "/Member.txt";
+const string EmployeeFilePath = FileFolderPath + "/Employee.txt";
+const string HistoryFilePath = FileFolderPath + "/History.txt";
 
 Employee *listEmployee;
 Employee *currentLibrarian;
@@ -355,7 +356,7 @@ void changePassword(Employee& currentLibrarian) {
 string createBookDataId() {
     int lastKnownBookDataId;
     try {
-        lastKnownBookDataId = stoi(listBook[bookCount - 1].getBookId().substr(2));
+        lastKnownBookDataId = listBook != nullptr ? stoi(listBook[bookCount - 1].getBookId().substr(2)) : 0;
     } catch (const invalid_argument& err) {
         cout << "Error converting BookData Id into integer\n";
         exit(-1);
@@ -369,7 +370,7 @@ string createBookDataId() {
 
 //Veronica
 string createMemberId(){
-    string lastId = listMember[memberCount-1].getId();
+    string lastId = listMember != nullptr ? listMember[memberCount-1].getId() : "M-0000";
     int lastKnownMemberId;
     lastId = lastId.substr(2);
     try {
@@ -387,7 +388,7 @@ string createMemberId(){
 
 //Sabrina
 string createIdEmployee() {
-    string employeeLastId = listEmployee[employeeCount-1].getIdEmployee();
+    string employeeLastId = listEmployee != nullptr ? listEmployee[employeeCount-1].getIdEmployee() : "E000";
     employeeLastId = employeeLastId.substr(1);
     int lastKnownEmployeeId;
     try {
@@ -590,6 +591,7 @@ void showHistory(ifstream& file) {
         getline(file, input);
         cout << input << endl;
     }
+    system("PAUSE");
 }
 
 void addTitle() {
@@ -698,13 +700,13 @@ void addMember() {
     int Age;
     string bookName{"-"}, bookId{"-"};
     int requiredAge{-1};
-    cout << "Enter member's name: ";
+    cout << "Enter member's name:\n>> ";
     getline(cin, Name);
 
-    cout << "Enter member's address: ";
+    cout << "Enter member's address:\n>> ";
     getline(cin, Address);
 
-    cout << "Enter member's phone number: ";
+    cout << "Enter member's phone number:\n>> ";
     getline(cin, Telephone);
 
     Id = createMemberId();
@@ -811,7 +813,7 @@ void removeMember(){
 //Sabrina
 void addEmployee() {
     string nameEmployee, idEmployee, password;
-    cout << "Input Employee's Name: ";
+    cout << "Input Employee's Name:\n>> ";
     getline(cin, nameEmployee);
     idEmployee = createIdEmployee();
 
@@ -911,7 +913,7 @@ void gatherData() {
     ifstream employeeFileIn;
     employeeFileIn.open(EmployeeFilePath, ios::in);
     if (!employeeFileIn.is_open()) {
-        if (prompt("Employee data not found at " + EmployeeFilePath + ". Would you like to add one?")) {
+        if (prompt("Employee data not found at " + EmployeeFilePath + ". Would you like to add one(y/n)? (Make sure the folder \"" + FileFolderPath + "\" exist)")) {
             addEmployee();
         } 
 
@@ -928,7 +930,7 @@ void gatherData() {
     ifstream bookFileIn;
     bookFileIn.open(BookDataFilePath, ios::in);
     if (!bookFileIn.is_open()) {
-        if (prompt("Book data not found at " + BookDataFilePath + ". Would you like to add one?")) {
+        if (prompt("Book data not found at " + BookDataFilePath + ". Would you like to add one(y/n)? (Make sure the folder \"" + FileFolderPath + "\" exist)")) {
             addTitle();
         } 
 
@@ -945,7 +947,7 @@ void gatherData() {
     ifstream memberFileIn;
     memberFileIn.open(MemberFilePath, ios::in);
     if (!memberFileIn.is_open()) {
-        if (prompt("Member data not found at " + MemberFilePath + ". Would you like to add one?")) {
+        if (prompt("Member data not found at " + MemberFilePath + ". Would you like to add one(y/n)? (Make sure the folder \"" + FileFolderPath + "\" exist)")) {
             addMember();
         } 
 
@@ -1067,7 +1069,6 @@ void destroyAllData() {
     delete[] listMember;
     delete currentLibrarian;
 }
-
 
 int main() {
     gatherData();
