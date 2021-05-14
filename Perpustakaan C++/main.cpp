@@ -210,7 +210,8 @@ void writeList(ostream& output, Member* list) {
 //Sabrina
 void writeList(ostream& output, Employee* list) {
     for (int i = 0; i < employeeCount; i++) {
-        write(output, listEmployee[i]); }
+        write(output, listEmployee[i]); 
+    }
 }
 
 //All
@@ -1081,9 +1082,11 @@ void destroyAllData() {
 }
 
 int main() {
+    srand(time(0));
     gatherData();
     login();
     while (startMenu());
     cout << "Thanks for using this program.\n";
+    writeData();
     return 0;
 }
