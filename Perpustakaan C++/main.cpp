@@ -960,19 +960,6 @@ void gatherData() {
 
 
 void libraryManagement() {
-    string password;
-    cout << "Input your password\n>> ";
-    getline(cin, password);
-    while (!currentLibrarian->login(password) &&
-            !(password.size() == 1 && password[0] == '0')) {
-        cout << "Wrong password(0 to exit)\n>> ";
-        getline(cin, password);
-    }
-
-    if (password[0] == '0') {
-        return;
-    }
-
     cout << "Welcome to library management.\n";
     cout << "1. Add title.\n"
         << "2. Remove title.\n"
