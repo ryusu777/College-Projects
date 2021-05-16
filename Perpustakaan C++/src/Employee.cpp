@@ -1,4 +1,7 @@
 #include "../Class/Employee.h"
+#include <iostream>
+#include <cstdlib>
+#include <string>
 
 Employee::Employee(std::string nameEmployee, std::string idEmployee, 
         std::string password) : 
