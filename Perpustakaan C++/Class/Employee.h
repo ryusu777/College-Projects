@@ -4,25 +4,28 @@
 #include <cstdlib>
 
 class Employee{
-    public:
-        Employee();
+public:
+    //Default Constructor
+    Employee();
 
-        Employee(std::string nameEmployee, std::string idEmployee, std::string password);
+    //Constructor
+    Employee(std::string nameEmployee, std::string idEmployee, std::string password);
 
-        void setNameEmployee (std::string nameEmployee);
+    //Function to change password that need old password
+    void changePassword();
 
-        void setIdEmployee (std::string idEmployee);
+    //Getter for nameEmployee
+    std::string getNameEmployee() const;
+    
+    //Getter for idEmployee
+    std::string getIdEmployee() const;
 
-        void changePassword();
+    //Getter for password
+    std::string getPassword() const;
+    
+    //Return true if inputPassword is equal to password, false otherwise
+    bool login(std::string inputPassword) const;
 
-        std::string getNameEmployee() const;
-        
-        std::string getIdEmployee() const;
-        
-        std::string getPassword() const;
-        
-        bool login(std::string inputPassword) const;
-
-    private:
-        std::string nameEmployee, idEmployee, password;
+private:
+    std::string nameEmployee, idEmployee, password;
 };
