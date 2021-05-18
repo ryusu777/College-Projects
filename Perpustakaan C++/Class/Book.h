@@ -1,28 +1,23 @@
 #pragma once
 #include <string>
-#include <fstream>
 
 class Book{
-    protected:
-        std::string bookName, bookId;
-        int requiredAge;
+protected:
+    std::string bookName, bookId;
+    int requiredAge;
 
-    public:
+public:
+    //Constructor
+    Book(std::string bookName, std::string bookId, int requiredAge);
 
-        Book(std::string bookName, std::string bookId, int requiredAge);
+    //Function to borrow book
+    virtual void borrowBook() {}
+    //Function to return book
+    virtual void returnBook() {}
 
-        virtual void borrowBook() {}
-        virtual void returnBook() {}
+    std::string getBookName() const;
 
-        void setBookName(std::string bookName);
+    std::string getBookId() const;
 
-        void setBookId(std::string bookId);
-
-        void setRequiredAge(int requiredAge);
-
-        std::string getBookName() const;
-
-        std::string getBookId() const;
-
-        int getRequiredAge() const;
+    int getRequiredAge() const;
 };

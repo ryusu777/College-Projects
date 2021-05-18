@@ -1,9 +1,6 @@
 #pragma once
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <ctime>
 #include "Book.h"
+#include <string>
 
 class BookData : public Book {
 private:

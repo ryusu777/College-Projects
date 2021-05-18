@@ -1,10 +1,10 @@
 3
 Jose Ryu Leonesta
 E001
-12345678
+2345
 Sabrina Yose Amelia
 E002
-abcd5678
+10klmn;<=>
 Veronica Yose Ardilla
 E003
-abcdefgh
+3defghijk
