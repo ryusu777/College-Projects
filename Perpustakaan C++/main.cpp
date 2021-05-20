@@ -228,7 +228,7 @@ void writeData() {
 
 BookData* searchBook(const string& input) {
     for (int i = 0; i < bookCount; i++)
-        if (listBook[i].getBookName() == input || listBook[i].getBookId() == input)
+        if (toLower(listBook[i].getBookName()) == toLower(input) || toLower(listBook[i].getBookId()) == toLower(input))
             return &listBook[i];
 
     return nullptr;
@@ -237,7 +237,7 @@ BookData* searchBook(const string& input) {
 //Sabrina
 Employee* searchEmployee(const string& id) {
     for (int i = 0; i < employeeCount; i++)
-        if (listEmployee[i].getIdEmployee() == id)
+        if (toLower(listEmployee[i].getIdEmployee()) == toLower(id))
             return &listEmployee[i];
     return nullptr;
 }
@@ -245,7 +245,7 @@ Employee* searchEmployee(const string& id) {
 //Veronica
 Member* searchMember(const string& id) {
     for(int i=0; i<memberCount; i++)
-        if(listMember[i].getId()==id)
+        if(toLower(listMember[i].getId()) == toLower(id))
             return &listMember[i];
 
     return nullptr;
@@ -491,7 +491,7 @@ void borrowBook() {
 
     // check if the book's title is found
     do {
-        cout << "Input Book's Name:\n>> ";
+        cout << "Input Book's Name or ID:\n>> ";
         getline(cin, bookName);
         ptrBookData = searchBook(bookName);
         if (ptrBookData != nullptr) {
@@ -546,7 +546,7 @@ void returnBook() {
 
     // check if member already return book
     if (MemberHasBook(*ptrMember) == false) {
-        cout << "Member already return the book.\n";
+        cout << "Member doesn't have book borrowed.\n";
         return;
     }
 
@@ -562,7 +562,8 @@ void returnBook() {
         historyFile.close();
         writeData();
     } else {
-        cout << "No book found.\n";
+        cout << "The book isn't available anymore.\n";
+        ptrMember->returnBook();
     }
 }
 
@@ -931,7 +932,7 @@ void gatherData() {
 }
 
 
-void libraryManagement() {
+int libraryManagement() {
     cout << "Welcome to library management.\n";
     cout << "1. Add title.\n"
         << "2. Remove title.\n"
@@ -963,6 +964,7 @@ void libraryManagement() {
         default:
             break;
     }
+    return chosen;
 }
 
 int startMenu() {
@@ -1023,7 +1025,11 @@ int startMenu() {
                 if (password[0] == '0')
                     break;
 
-                repeat("Finished doing library management(y/n)?", libraryManagement);
+                int input;
+                do {
+                    system("cls");
+                    input = libraryManagement();
+                } while (input != 7);
             }
             break;
         default:
