@@ -1,14 +1,3 @@
-# Table of Content
-[Getting Started](#getting-started)
-
-Basic Usage:
-  - [Main Page](#main-page)
-  - [Borrow Book](#borrow-book)
-  - [Return Book](#return-book)
-  - [Show History](#show-history)
-  - [Stock Management](#stock-management)
-  - [Change Password](#change-password)
-
 ## Getting Started
 When you start this program for the first time and you do not have the employee’s data file, member’s data file, and book’s data file, so you must create the files first.
   1.	At first, make sure that the folder “Files” already exist then input “y” to add employee data. After that, input employee’s name, password, and password confirmation.
@@ -25,15 +14,3 @@ When you start this program for the first time and you do not have the employee�
   6.	The data of the member will be shown and input “y” to add the member’s data.
   <img src="https://github.com/ryusu777/College-Projects/blob/ryusu777-patch-1/Perpustakaan%20C++/img/getting-started-7.png?raw=true" width="600">
   7.	Then you can start to use this program by input the employee’s id and password.
-
-## Main Page
-
-## Borrow Book
-
-## Return Book
-
-## Show History
-
-## Stock Management
-
-## Change Password
